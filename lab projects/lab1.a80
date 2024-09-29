@@ -1,0 +1,18 @@
+; Z80 Microprocessor Kit sdcc version
+; Written by Youssef Ahmed Tawfik (C) 2024
+
+; project function is incrementing portC value every 500ms making pin0 in portC blinking
+
+; get these values from map file 
+_portC	  				 EQU 0x0049
+_delay_ms 				 EQU 0x01E4
+; user main application
+LD A,00H
+L1:
+	OUT (_portC),A	; put value in A register in portC
+	INC A			; increment value in A register
+	LD HL,0x100		; load HL register with 0x50
+	push AF			; push AF register
+	CALL _delay_ms	; call delay 500 ms
+	pop AF			; pop AF register
+	Jr L1			; jump to L1

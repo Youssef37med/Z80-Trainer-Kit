@@ -1,0 +1,137 @@
+/* 
+ * File:   main.c
+ * Author: LENOVO
+ *
+ * Created on September 19, 2023, 12:43 PM
+ */
+
+#include <stdio.h>
+#include <stdlib.h>
+#include "MCAL_layer/gpio/gpio.h"
+#include "MCAL_layer/Interrupt/mcal_interrupt_config.h"
+#include "MCAL_layer/Interrupt/mcal_external_interrupt.h"
+#include "MCAL_layer/timer1/hal_timr1.h"
+#include "MCAL_layer/timer2/hal_timr2.h"
+#include "MCAL_layer/timer0/hal_timr0.h"
+#include "MCAL_layer/ccp/hal_ccp.h"
+#include "MCAL_layer/comparator/comparator.h"
+#include "ECU_layer/chr_lcd/ecu_chr_lcd.h"
+#include "ECU_layer/keypad/ecu_keypad.h"
+#include "MCAL_layer/usart/hal_usart.h"
+
+#define _XTAL_FREQ 16000000
+
+
+void USART_RX_Int_Handler();
+void INTX_High_Int_Handler();
+void INTX_Low_Int_Handler();
+
+uint8 chr = 0;
+
+typedef enum{
+    SEND_CHAR =  0,
+    INTERRUPT_EXTERNAL_RB5,
+    INTERRUPT_EXTERNAL_RB6,
+    INTERRUPT_EXTERNAL_RB7,
+}Mode_of_Z80;
+
+int main() {
+    
+    USART_ASYNC_Init(19200);
+    TXSTAbits.BRGH = 1;
+    SPBRG = 51;
+    Serial.set_interrupt_handler(NULL,USART_RX_Int_Handler);
+    
+    attachInterrupt_RBx(INTERRUPT_EXTERNAL_RB7,INTX_High_Int_Handler,INTX_Low_Int_Handler);
+    
+    pinMode(PB,PIN1,INPUT);
+    pinMode(PB,PIN2,INPUT);
+    pinMode(PB,PIN3,OUTPUT);
+    pinMode(PB,PIN4,OUTPUT);
+    pinMode(PB,PIN5,INPUT);
+    pinMode(PB,PIN6,INPUT);
+    //CCP_Pwm_Mode_Init(CCP1_PIN,255,TIMER2_PRESCALER_DIV_BY_1,TIMER2_POSTSCALER_DIV_BY_1,NULL);
+    while(1)
+    {
+        
+    }
+
+    return (EXIT_SUCCESS);
+}
+
+void USART_RX_Int_Handler()
+{
+    uint8 data= Serial.read_char();
+    chr = data;
+    Serial.write_char(data);
+    digitalWrite(PB,PIN3,LOW);
+    __delay_us(30);
+    digitalWrite(PB,PIN3,HIGH);
+}
+
+
+void INTX_High_Int_Handler()
+{
+    TRISD = 0x11;
+}
+void INTX_Low_Int_Handler()
+{
+    if(!digitalRead(PB,PIN1))
+    {
+        TRISD = 0x00;
+        PORTD = chr;
+    }
+    else if(!digitalRead(PB,PIN2))
+    {
+        TRISD = 0x11;
+        chr = PORTD;
+        Serial.write_char(chr);
+    }
+    else
+    {
+        
+    }
+}
+
+
+
+
+
+
+
+
+
+I2C_begin(I2C_MASTER_MODE,0x00);
+    uint8 _ack = I2C_ACK_NOT_RECEIVED_FROM_SLAVE;
+    uint8 data = 0;
+
+Wire.beginTransmission();
+        _ack = Wire.write(0x30);
+        _ack = Wire.write(0x66);
+        _ack = Wire.write(0x99);
+        Wire.restartTransmission();
+        _ack = Wire.requestFrom(0x30);
+        data = Wire.read(I2C_MASTER_SEND_ACK);
+        data = Wire.read(I2C_MASTER_SEND_ACK);
+        data = Wire.read(I2C_MASTER_SEND_NACK);
+        Wire.endTransmission();
+
+
+
+
+I2C_begin(I2C_SLAVE_MODE,0x30);
+    Wire.onRequest(onRequest);
+    Wire.onReceive(onRecieve);
+
+
+void onRequest()
+{
+    //Wire.write('B');
+    Wire.write('A');
+}
+void onRecieve()
+{
+    uint8 value = 0;
+    value = Wire.read(I2C_MASTER_SEND_ACK);
+    //PORTB = value;
+}

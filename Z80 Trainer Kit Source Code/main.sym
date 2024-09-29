@@ -1,0 +1,113 @@
+ASxxxx Assembler V02.00 + NoICE + SDCC mods  (Zilog Z80 / Hitachi HD64180 / ZX-Next / eZ80 / R800)                          Page 1
+Hexadecimal [24-Bits]
+
+Symbol Table
+
+    .__.$$$.                                                    =  002710 L
+    .__.ABS.                                                    =  000000 G
+    .__.CPU.                                                    =  000000 L
+    .__.H$L.                                                    =  000000 L
+    _LCD_command_read                                           =  000041 
+    _LCD_command_write                                          =  000001 
+    _LCD_data_read                                              =  000061 
+    _LCD_data_write                                             =  000021 
+  1 _PC                                                            000010 GR
+  1 _SYS_SP                                                        000022 GR
+    _USART_READ                                                 =  00001D 
+  1 _USER_AF                                                       000014 GR
+  1 _USER_BC                                                       000016 GR
+  1 _USER_DE                                                       000018 GR
+  1 _USER_HL                                                       00001A GR
+  1 _USER_IX                                                       00001C GR
+  1 _USER_IY                                                       00001E GR
+  1 _USER_SP                                                       000020 GR
+  0 ___str_0                                                       00007C R
+  0 ___str_1                                                       00008A R
+  0 ___str_3                                                       00058C R
+  0 ___str_4                                                       000598 R
+  0 _address_buffer_write                                          00027F GR
+  0 _address_display                                               00030A GR
+  1 _buffer                                                        000000 GR
+  0 _convert                                                       00005B GR
+  1 _count                                                         00000B GR
+  0 _data_buffer_write                                             0002D9 GR
+  0 _data_display                                                  000313 GR
+  0 _data_hex                                                      0003B0 GR
+  1 _data_in                                                       00000D GR
+  0 _default_handler                                               000096 GR
+  0 _delay                                                         0000F6 GR
+  0 _delay_ms                                                      000102 GR
+  0 _dot_address                                                   000227 GR
+  0 _dot_data                                                      000253 GR
+  1 _dptr                                                          000024 GR
+  0 _hex_address                                                   000384 GR
+  0 _hex_chars                                                     00006B GR
+  1 _hit                                                           00000F GR
+  1 _key                                                           00000C GR
+  0 _key_PC                                                        00037B GR
+  0 _key_address                                                   000324 GR
+  0 _key_code                                                      0005A5 GR
+  0 _key_data                                                      000334 GR
+  0 _key_exe                                                       0006E8 GR
+  0 _key_go                                                        0004F7 GR
+  0 _key_minus                                                     00035A GR
+  0 _key_plus                                                      000344 GR
+  0 _key_reg                                                       0003E6 GR
+  0 _key_step                                                      0004C1 GR
+  0 _key_usart_receive_byte                                        00052E GR
+  0 _lcd_8bit_initialize                                           000117 GR
+  0 _lcd_8bit_send_char_data                                       00018F GR
+  0 _lcd_8bit_send_command                                         000188 GR
+ASxxxx Assembler V02.00 + NoICE + SDCC mods  (Zilog Z80 / Hitachi HD64180 / ZX-Next / eZ80 / R800)                          Page 2
+Hexadecimal [24-Bits]
+
+Symbol Table
+
+  0 _lcd_8bit_send_string                                          000196 GR
+  0 _lcd_8bit_send_uint8_hex_data                                  0001D1 GR
+  0 _lcd_8bit_set_cursor                                           0001A3 GR
+  0 _main                                                          000000 GR
+  0 _nmi_handler                                                   0000B0 GR
+    _p8255                                                      =  000069 
+  0 _p8255_initialize                                              00021A GR
+    _portA                                                      =  000009 
+    _portB                                                      =  000029 
+    _portC                                                      =  000049 
+    _portD                                                      =  000005 
+    _portE                                                      =  00000D 
+    _portF                                                      =  000011 
+    _portG                                                      =  000015 
+    _portH                                                      =  000019 
+  0 _read_memory                                                   00031E GR
+  0 _reg_AF                                                        00040A GR
+  0 _reg_BC                                                        00041E GR
+  0 _reg_DE                                                        000432 GR
+  0 _reg_HL                                                        000446 GR
+  0 _reg_IX                                                        00045A GR
+  0 _reg_IY                                                        00046E GR
+  0 _reg_SP                                                        000482 GR
+  0 _reg_display                                                   000496 GR
+  1 _save_PC                                                       000012 GR
+  0 _scan                                                          000659 GR
+  0 _scan1                                                         000748 GR
+  1 _state                                                         00000E GR
+  1 _temp                                                          000006 GR
+  1 _temp16                                                        000008 GR
+  1 _temp8                                                         00000A GR
+
+
+ASxxxx Assembler V02.00 + NoICE + SDCC mods  (Zilog Z80 / Hitachi HD64180 / ZX-Next / eZ80 / R800)                          Page 3
+Hexadecimal [24-Bits]
+
+Area Table
+
+   0 _CODE                                      size    76F   flags    0
+   1 _DATA                                      size     26   flags    0
+   2 _INITIALIZED                               size      0   flags    0
+   3 _DABS                                      size      0   flags    8
+   4 _HOME                                      size      0   flags    0
+   5 _GSINIT                                    size      0   flags    0
+   6 _GSFINAL                                   size      0   flags    0
+   7 _INITIALIZER                               size      0   flags    0
+   8 _CABS                                      size      0   flags    8
+

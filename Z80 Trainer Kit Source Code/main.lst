@@ -1,0 +1,1659 @@
+                                      1 ;--------------------------------------------------------
+                                      2 ; File Created by SDCC : free open source ISO C Compiler 
+                                      3 ; Version 4.4.0 #14620 (MINGW64)
+                                      4 ;--------------------------------------------------------
+                                      5 	.module main
+                                      6 	.optsdcc -mz80
+                                      7 	
+                                      8 ;--------------------------------------------------------
+                                      9 ; Public variables in this module
+                                     10 ;--------------------------------------------------------
+                                     11 	.globl _main
+                                     12 	.globl _dptr
+                                     13 	.globl _SYS_SP
+                                     14 	.globl _USER_SP
+                                     15 	.globl _USER_IY
+                                     16 	.globl _USER_IX
+                                     17 	.globl _USER_HL
+                                     18 	.globl _USER_DE
+                                     19 	.globl _USER_BC
+                                     20 	.globl _USER_AF
+                                     21 	.globl _save_PC
+                                     22 	.globl _PC
+                                     23 	.globl _hit
+                                     24 	.globl _state
+                                     25 	.globl _data_in
+                                     26 	.globl _key
+                                     27 	.globl _count
+                                     28 	.globl _temp8
+                                     29 	.globl _temp16
+                                     30 	.globl _temp
+                                     31 	.globl _buffer
+                                     32 	.globl _hex_chars
+                                     33 	.globl _convert
+                                     34 	.globl _default_handler
+                                     35 	.globl _nmi_handler
+                                     36 	.globl _delay
+                                     37 	.globl _delay_ms
+                                     38 	.globl _lcd_8bit_initialize
+                                     39 	.globl _lcd_8bit_send_command
+                                     40 	.globl _lcd_8bit_send_char_data
+                                     41 	.globl _lcd_8bit_send_string
+                                     42 	.globl _lcd_8bit_set_cursor
+                                     43 	.globl _lcd_8bit_send_uint8_hex_data
+                                     44 	.globl _p8255_initialize
+                                     45 	.globl _dot_address
+                                     46 	.globl _dot_data
+                                     47 	.globl _address_buffer_write
+                                     48 	.globl _data_buffer_write
+                                     49 	.globl _address_display
+                                     50 	.globl _data_display
+                                     51 	.globl _read_memory
+                                     52 	.globl _key_address
+                                     53 	.globl _key_data
+                                     54 	.globl _key_plus
+                                     55 	.globl _key_minus
+                                     56 	.globl _key_PC
+                                     57 	.globl _hex_address
+                                     58 	.globl _data_hex
+                                     59 	.globl _key_reg
+                                     60 	.globl _reg_AF
+                                     61 	.globl _reg_BC
+                                     62 	.globl _reg_DE
+                                     63 	.globl _reg_HL
+                                     64 	.globl _reg_IX
+                                     65 	.globl _reg_IY
+                                     66 	.globl _reg_SP
+                                     67 	.globl _reg_display
+                                     68 	.globl _key_step
+                                     69 	.globl _key_go
+                                     70 	.globl _key_usart_receive_byte
+                                     71 	.globl _key_code
+                                     72 	.globl _scan
+                                     73 	.globl _key_exe
+                                     74 	.globl _scan1
+                                     75 ;--------------------------------------------------------
+                                     76 ; special function registers
+                                     77 ;--------------------------------------------------------
+                           000069    78 _p8255	=	0x0069
+                           000009    79 _portA	=	0x0009
+                           000029    80 _portB	=	0x0029
+                           000049    81 _portC	=	0x0049
+                           000005    82 _portD	=	0x0005
+                           00000D    83 _portE	=	0x000d
+                           000011    84 _portF	=	0x0011
+                           000015    85 _portG	=	0x0015
+                           000019    86 _portH	=	0x0019
+                           000001    87 _LCD_command_write	=	0x0001
+                           000021    88 _LCD_data_write	=	0x0021
+                           000041    89 _LCD_command_read	=	0x0041
+                           000061    90 _LCD_data_read	=	0x0061
+                           00001D    91 _USART_READ	=	0x001d
+                                     92 ;--------------------------------------------------------
+                                     93 ; ram data
+                                     94 ;--------------------------------------------------------
+                                     95 	.area _DATA
+      000000                         96 _buffer::
+      000000                         97 	.ds 6
+      000006                         98 _temp::
+      000006                         99 	.ds 2
+      000008                        100 _temp16::
+      000008                        101 	.ds 2
+      00000A                        102 _temp8::
+      00000A                        103 	.ds 1
+      00000B                        104 _count::
+      00000B                        105 	.ds 1
+      00000C                        106 _key::
+      00000C                        107 	.ds 1
+      00000D                        108 _data_in::
+      00000D                        109 	.ds 1
+      00000E                        110 _state::
+      00000E                        111 	.ds 1
+      00000F                        112 _hit::
+      00000F                        113 	.ds 1
+      000010                        114 _PC::
+      000010                        115 	.ds 2
+      000012                        116 _save_PC::
+      000012                        117 	.ds 2
+      000014                        118 _USER_AF::
+      000014                        119 	.ds 2
+      000016                        120 _USER_BC::
+      000016                        121 	.ds 2
+      000018                        122 _USER_DE::
+      000018                        123 	.ds 2
+      00001A                        124 _USER_HL::
+      00001A                        125 	.ds 2
+      00001C                        126 _USER_IX::
+      00001C                        127 	.ds 2
+      00001E                        128 _USER_IY::
+      00001E                        129 	.ds 2
+      000020                        130 _USER_SP::
+      000020                        131 	.ds 2
+      000022                        132 _SYS_SP::
+      000022                        133 	.ds 2
+      000024                        134 _dptr::
+      000024                        135 	.ds 2
+                                    136 ;--------------------------------------------------------
+                                    137 ; ram data
+                                    138 ;--------------------------------------------------------
+                                    139 	.area _INITIALIZED
+                                    140 ;--------------------------------------------------------
+                                    141 ; absolute external ram data
+                                    142 ;--------------------------------------------------------
+                                    143 	.area _DABS (ABS)
+                                    144 ;--------------------------------------------------------
+                                    145 ; global & static initialisations
+                                    146 ;--------------------------------------------------------
+                                    147 	.area _HOME
+                                    148 	.area _GSINIT
+                                    149 	.area _GSFINAL
+                                    150 	.area _GSINIT
+                                    151 ;--------------------------------------------------------
+                                    152 ; Home
+                                    153 ;--------------------------------------------------------
+                                    154 	.area _HOME
+                                    155 	.area _HOME
+                                    156 ;--------------------------------------------------------
+                                    157 ; code
+                                    158 ;--------------------------------------------------------
+                                    159 	.area _CODE
+                                    160 ;.\main.c:41: void main(void)
+                                    161 ;	---------------------------------
+                                    162 ; Function main
+                                    163 ; ---------------------------------
+      000000                        164 _main::
+                                    165 ;.\main.c:43: portE = 0x00;
+      000000 3E 00            [ 7]  166 	ld	a, #0x00
+      000002 D3 0D            [11]  167 	out	(_portE), a
+                                    168 ;.\main.c:44: portF = 0xFF;
+      000004 3E FF            [ 7]  169 	ld	a, #0xff
+      000006 D3 11            [11]  170 	out	(_portF), a
+                                    171 ;.\main.c:46: buffer[0] = 0x77;
+      000008 21r00r00         [10]  172 	ld	hl, #_buffer
+      00000B 36 77            [10]  173 	ld	(hl), #0x77
+                                    174 ;.\main.c:47: buffer[1] = 0xEF;
+      00000D 23               [ 6]  175 	inc	hl
+      00000E 36 EF            [10]  176 	ld	(hl), #0xef
+                                    177 ;.\main.c:48: buffer[2] = 0xEF;
+      000010 21r02r00         [10]  178 	ld	hl, #_buffer + 2
+      000013 36 EF            [10]  179 	ld	(hl), #0xef
+                                    180 ;.\main.c:49: buffer[3] = 0x34;
+      000015 21r03r00         [10]  181 	ld	hl, #_buffer + 3
+      000018 36 34            [10]  182 	ld	(hl), #0x34
+                                    183 ;.\main.c:50: buffer[4] = 0x0E;
+      00001A 21r04r00         [10]  184 	ld	hl, #_buffer + 4
+      00001D 36 0E            [10]  185 	ld	(hl), #0x0e
+                                    186 ;.\main.c:51: buffer[5] = 0x9C;
+      00001F 21r05r00         [10]  187 	ld	hl, #_buffer + 5
+      000022 36 9C            [10]  188 	ld	(hl), #0x9c
+                                    189 ;.\main.c:53: PC = 0x8100;
+      000024 21 00 81         [10]  190 	ld	hl, #0x8100
+      000027 22r10r00         [16]  191 	ld	(_PC), hl
+                                    192 ;.\main.c:54: save_PC = 0x8100;
+      00002A 22r12r00         [16]  193 	ld	(_save_PC), hl
+                                    194 ;.\main.c:55: USER_SP = 0x9FFF;
+      00002D 21 FF 9F         [10]  195 	ld	hl, #0x9fff
+      000030 22r20r00         [16]  196 	ld	(_USER_SP), hl
+                                    197 ;.\main.c:57: state = 0;
+      000033 21r0Er00         [10]  198 	ld	hl, #_state
+      000036 36 00            [10]  199 	ld	(hl), #0x00
+                                    200 ;.\main.c:59: count = 0;
+      000038 21r0Br00         [10]  201 	ld	hl, #_count
+      00003B 36 00            [10]  202 	ld	(hl), #0x00
+                                    203 ;.\main.c:61: lcd_8bit_initialize();
+      00003D CDr17r01         [17]  204 	call	_lcd_8bit_initialize
+                                    205 ;.\main.c:62: p8255_initialize();
+      000040 CDr1Ar02         [17]  206 	call	_p8255_initialize
+                                    207 ;.\main.c:64: lcd_8bit_send_string("Z80 Processor");
+      000043 21r7Cr00         [10]  208 	ld	hl, #___str_0
+      000046 CDr96r01         [17]  209 	call	_lcd_8bit_send_string
+                                    210 ;.\main.c:65: lcd_8bit_set_cursor(2, 1);
+      000049 2E 01            [ 7]  211 	ld	l, #0x01
+                                    212 ;	spillPairReg hl
+                                    213 ;	spillPairReg hl
+      00004B 3E 02            [ 7]  214 	ld	a, #0x02
+      00004D CDrA3r01         [17]  215 	call	_lcd_8bit_set_cursor
+                                    216 ;.\main.c:66: lcd_8bit_send_string("Trainer Kit");
+      000050 21r8Ar00         [10]  217 	ld	hl, #___str_1
+      000053 CDr96r01         [17]  218 	call	_lcd_8bit_send_string
+                                    219 ;.\main.c:68: while (1)
+      000056                        220 00102$:
+                                    221 ;.\main.c:70: scan1();
+      000056 CDr48r07         [17]  222 	call	_scan1
+                                    223 ;.\main.c:72: }
+      000059 18 FB            [12]  224 	jr	00102$
+      00005B                        225 _convert:
+      00005B 14                     226 	.db #0x14	; 20
+      00005C 77                     227 	.db #0x77	; 119	'w'
+      00005D 4C                     228 	.db #0x4c	; 76	'L'
+      00005E 45                     229 	.db #0x45	; 69	'E'
+      00005F 27                     230 	.db #0x27	; 39
+      000060 85                     231 	.db #0x85	; 133
+      000061 84                     232 	.db #0x84	; 132
+      000062 57                     233 	.db #0x57	; 87	'W'
+      000063 04                     234 	.db #0x04	; 4
+      000064 05                     235 	.db #0x05	; 5
+      000065 06                     236 	.db #0x06	; 6
+      000066 A4                     237 	.db #0xa4	; 164
+      000067 9C                     238 	.db #0x9c	; 156
+      000068 64                     239 	.db #0x64	; 100	'd'
+      000069 8C                     240 	.db #0x8c	; 140
+      00006A 8E                     241 	.db #0x8e	; 142
+      00006B                        242 _hex_chars:
+      00006B 30 31 32 33 34 35 36   243 	.ascii "0123456789ABCDEF"
+             37 38 39 41 42 43 44
+             45 46
+      00007B 00                     244 	.db 0x00
+      00007C                        245 ___str_0:
+      00007C 5A 38 30 20 50 72 6F   246 	.ascii "Z80 Processor"
+             63 65 73 73 6F 72
+      000089 00                     247 	.db 0x00
+      00008A                        248 ___str_1:
+      00008A 54 72 61 69 6E 65 72   249 	.ascii "Trainer Kit"
+             20 4B 69 74
+      000095 00                     250 	.db 0x00
+                                    251 ;.\main.c:74: void default_handler(void)
+                                    252 ;	---------------------------------
+                                    253 ; Function default_handler
+                                    254 ; ---------------------------------
+      000096                        255 _default_handler::
+                                    256 ;.\main.c:92: __endasm;
+      000096 F5               [11]  257 	push	af
+      000097 C5               [11]  258 	push	bc
+      000098 D5               [11]  259 	push	de
+      000099 E5               [11]  260 	push	hl
+      00009A DD E5            [15]  261 	push	ix
+      00009C FD E5            [15]  262 	push	iy
+      00009E 21 80 00         [10]  263 	ld	hl, #0x80
+      0000A1 CDr02r01         [17]  264 	call	_delay_ms
+      0000A4 FD E1            [14]  265 	pop	iy
+      0000A6 DD E1            [14]  266 	pop	ix
+      0000A8 E1               [10]  267 	pop	hl
+      0000A9 D1               [10]  268 	pop	de
+      0000AA C1               [10]  269 	pop	bc
+      0000AB F1               [10]  270 	pop	af
+      0000AC C3rB0r00         [10]  271 	jp	_nmi_handler
+                                    272 ;.\main.c:93: }
+      0000AF C9               [10]  273 	ret
+                                    274 ;.\main.c:94: void nmi_handler(void)
+                                    275 ;	---------------------------------
+                                    276 ; Function nmi_handler
+                                    277 ; ---------------------------------
+      0000B0                        278 _nmi_handler::
+                                    279 ;.\main.c:135: __endasm;
+      0000B0 32r0Ar00         [13]  280 	ld(_temp8),	a
+      0000B3 3E 00            [ 7]  281 	ld	a, #0x00
+      0000B5 D3 0D            [11]  282 	out(_portE),	a
+      0000B7 3Ar0Ar00         [13]  283 	ld	a, (_temp8)
+      0000BA 22r08r00         [16]  284 	ld(_temp16),	hl; save hl
+      0000BD E1               [10]  285 	pop	hl
+      0000BE 22r12r00         [16]  286 	ld(_save_PC),	hl; save current PC
+      0000C1 ED 73r20r00      [20]  287 	ld(_USER_SP),	sp; save stack pointer
+      0000C5 2Ar08r00         [16]  288 	ld	hl, (_temp16); restore hl
+      0000C8 F5               [11]  289 	push	af
+      0000C9 C5               [11]  290 	push	bc
+      0000CA D5               [11]  291 	push	de
+      0000CB E5               [11]  292 	push	hl
+      0000CC DD E5            [15]  293 	push	ix
+      0000CE FD E5            [15]  294 	push	iy
+      0000D0 E1               [10]  295 	pop	hl
+      0000D1 22r1Er00         [16]  296 	ld(_USER_IY),	hl
+      0000D4 E1               [10]  297 	pop	hl
+      0000D5 22r1Cr00         [16]  298 	ld(_USER_IX),	hl
+      0000D8 E1               [10]  299 	pop	hl
+      0000D9 22r1Ar00         [16]  300 	ld(_USER_HL),	hl
+      0000DC E1               [10]  301 	pop	hl
+      0000DD 22r18r00         [16]  302 	ld(_USER_DE),	hl
+      0000E0 E1               [10]  303 	pop	hl
+      0000E1 22r16r00         [16]  304 	ld(_USER_BC),	hl
+      0000E4 E1               [10]  305 	pop	hl
+      0000E5 22r14r00         [16]  306 	ld(_USER_AF),	hl
+      0000E8 ED 7Br22r00      [20]  307 	ld	sp, (_SYS_SP); restore system stack
+      0000EC CDr7Br03         [17]  308 	call	_key_PC
+      0000EF 21 10 00         [10]  309 	ld	hl, #0x010
+      0000F2 CDr02r01         [17]  310 	call	_delay_ms
+                                    311 ;.\main.c:136: }
+      0000F5 C9               [10]  312 	ret
+                                    313 ;.\main.c:138: void delay(uint16_t steps)
+                                    314 ;	---------------------------------
+                                    315 ; Function delay
+                                    316 ; ---------------------------------
+      0000F6                        317 _delay::
+      0000F6 EB               [ 4]  318 	ex	de, hl
+                                    319 ;.\main.c:141: for (i = 0; i < steps; i++)
+      0000F7 01 00 00         [10]  320 	ld	bc, #0x0000
+      0000FA                        321 00103$:
+      0000FA 79               [ 4]  322 	ld	a, c
+      0000FB 93               [ 4]  323 	sub	a, e
+      0000FC 78               [ 4]  324 	ld	a, b
+      0000FD 9A               [ 4]  325 	sbc	a, d
+      0000FE D0               [11]  326 	ret	NC
+      0000FF 03               [ 6]  327 	inc	bc
+                                    328 ;.\main.c:144: }
+      000100 18 F8            [12]  329 	jr	00103$
+                                    330 ;.\main.c:145: void delay_ms(uint16_t milliseconds) {
+                                    331 ;	---------------------------------
+                                    332 ; Function delay_ms
+                                    333 ; ---------------------------------
+      000102                        334 _delay_ms::
+      000102 EB               [ 4]  335 	ex	de, hl
+                                    336 ;.\main.c:147: for (i = 0; i < milliseconds; i++) {
+      000103 01 00 00         [10]  337 	ld	bc, #0x0000
+      000106                        338 00107$:
+      000106 79               [ 4]  339 	ld	a, c
+      000107 93               [ 4]  340 	sub	a, e
+      000108 78               [ 4]  341 	ld	a, b
+      000109 9A               [ 4]  342 	sbc	a, d
+      00010A D0               [11]  343 	ret	NC
+                                    344 ;.\main.c:149: for (j = 0; j < 30; j++) {
+      00010B 21 1E 00         [10]  345 	ld	hl, #0x001e
+      00010E                        346 00105$:
+                                    347 ;.\main.c:154: __endasm;
+      00010E 00               [ 4]  348 	nop
+      00010F 2B               [ 6]  349 	dec	hl
+                                    350 ;.\main.c:149: for (j = 0; j < 30; j++) {
+      000110 7C               [ 4]  351 	ld	a, h
+      000111 B5               [ 4]  352 	or	a, l
+      000112 20 FA            [12]  353 	jr	NZ, 00105$
+                                    354 ;.\main.c:147: for (i = 0; i < milliseconds; i++) {
+      000114 03               [ 6]  355 	inc	bc
+                                    356 ;.\main.c:157: }
+      000115 18 EF            [12]  357 	jr	00107$
+                                    358 ;.\main.c:159: void lcd_8bit_initialize()
+                                    359 ;	---------------------------------
+                                    360 ; Function lcd_8bit_initialize
+                                    361 ; ---------------------------------
+      000117                        362 _lcd_8bit_initialize::
+                                    363 ;.\main.c:161: delay_ms(15);
+      000117 21 0F 00         [10]  364 	ld	hl, #0x000f
+      00011A CDr02r01         [17]  365 	call	_delay_ms
+                                    366 ;.\main.c:162: portH = 0x30;
+      00011D 3E 30            [ 7]  367 	ld	a, #0x30
+      00011F D3 19            [11]  368 	out	(_portH), a
+                                    369 ;.\main.c:163: LCD_command_write = 0x00;
+      000121 3E 00            [ 7]  370 	ld	a, #0x00
+      000123 D3 01            [11]  371 	out	(_LCD_command_write), a
+                                    372 ;.\main.c:165: delay_ms(5);
+      000125 21 05 00         [10]  373 	ld	hl, #0x0005
+      000128 CDr02r01         [17]  374 	call	_delay_ms
+                                    375 ;.\main.c:166: portH = 0x30;
+      00012B 3E 30            [ 7]  376 	ld	a, #0x30
+      00012D D3 19            [11]  377 	out	(_portH), a
+                                    378 ;.\main.c:167: LCD_command_write = 0x00;
+      00012F 3E 00            [ 7]  379 	ld	a, #0x00
+      000131 D3 01            [11]  380 	out	(_LCD_command_write), a
+                                    381 ;.\main.c:169: delay_ms(1);
+      000133 21 01 00         [10]  382 	ld	hl, #0x0001
+      000136 CDr02r01         [17]  383 	call	_delay_ms
+                                    384 ;.\main.c:170: portH = 0x30;
+      000139 3E 30            [ 7]  385 	ld	a, #0x30
+      00013B D3 19            [11]  386 	out	(_portH), a
+                                    387 ;.\main.c:171: LCD_command_write = 0x00;
+      00013D 3E 00            [ 7]  388 	ld	a, #0x00
+      00013F D3 01            [11]  389 	out	(_LCD_command_write), a
+                                    390 ;.\main.c:173: delay_ms(1);
+      000141 21 01 00         [10]  391 	ld	hl, #0x0001
+      000144 CDr02r01         [17]  392 	call	_delay_ms
+                                    393 ;.\main.c:174: portH = _LCD_8BIT_MODE_2_LINE;
+      000147 3E 38            [ 7]  394 	ld	a, #0x38
+      000149 D3 19            [11]  395 	out	(_portH), a
+                                    396 ;.\main.c:175: LCD_command_write = 0x00;
+      00014B 3E 00            [ 7]  397 	ld	a, #0x00
+      00014D D3 01            [11]  398 	out	(_LCD_command_write), a
+                                    399 ;.\main.c:177: delay_ms(1);
+      00014F 21 01 00         [10]  400 	ld	hl, #0x0001
+      000152 CDr02r01         [17]  401 	call	_delay_ms
+                                    402 ;.\main.c:178: portH = _LCD_DISPLAY_ON_UNDERLINE_OFF_CURSOR_OFF;
+      000155 3E 0C            [ 7]  403 	ld	a, #0x0c
+      000157 D3 19            [11]  404 	out	(_portH), a
+                                    405 ;.\main.c:179: LCD_command_write = 0x00;
+      000159 3E 00            [ 7]  406 	ld	a, #0x00
+      00015B D3 01            [11]  407 	out	(_LCD_command_write), a
+                                    408 ;.\main.c:181: delay_ms(1);
+      00015D 21 01 00         [10]  409 	ld	hl, #0x0001
+      000160 CDr02r01         [17]  410 	call	_delay_ms
+                                    411 ;.\main.c:182: portH = _LCD_CLEAR;
+      000163 3E 01            [ 7]  412 	ld	a, #0x01
+      000165 D3 19            [11]  413 	out	(_portH), a
+                                    414 ;.\main.c:183: LCD_command_write = 0x00;
+      000167 3E 00            [ 7]  415 	ld	a, #0x00
+      000169 D3 01            [11]  416 	out	(_LCD_command_write), a
+                                    417 ;.\main.c:185: delay_ms(1);
+      00016B 21 01 00         [10]  418 	ld	hl, #0x0001
+      00016E CDr02r01         [17]  419 	call	_delay_ms
+                                    420 ;.\main.c:186: portH = _LCD_ENTRY_MODE_INC_SHIFT_OFF;
+      000171 3E 06            [ 7]  421 	ld	a, #0x06
+      000173 D3 19            [11]  422 	out	(_portH), a
+                                    423 ;.\main.c:187: LCD_command_write = 0x00;
+      000175 3E 00            [ 7]  424 	ld	a, #0x00
+      000177 D3 01            [11]  425 	out	(_LCD_command_write), a
+                                    426 ;.\main.c:189: delay_ms(1);
+      000179 21 01 00         [10]  427 	ld	hl, #0x0001
+      00017C CDr02r01         [17]  428 	call	_delay_ms
+                                    429 ;.\main.c:190: portH = _LCD_RETURN_HOME;
+      00017F 3E 02            [ 7]  430 	ld	a, #0x02
+      000181 D3 19            [11]  431 	out	(_portH), a
+                                    432 ;.\main.c:191: LCD_command_write = 0x00;
+      000183 3E 00            [ 7]  433 	ld	a, #0x00
+      000185 D3 01            [11]  434 	out	(_LCD_command_write), a
+                                    435 ;.\main.c:192: }
+      000187 C9               [10]  436 	ret
+                                    437 ;.\main.c:193: void lcd_8bit_send_command(uint8_t command)
+                                    438 ;	---------------------------------
+                                    439 ; Function lcd_8bit_send_command
+                                    440 ; ---------------------------------
+      000188                        441 _lcd_8bit_send_command::
+      000188 D3 19            [11]  442 	out	(_portH), a
+                                    443 ;.\main.c:196: LCD_command_write = 0x00;
+      00018A 3E 00            [ 7]  444 	ld	a, #0x00
+      00018C D3 01            [11]  445 	out	(_LCD_command_write), a
+                                    446 ;.\main.c:197: }
+      00018E C9               [10]  447 	ret
+                                    448 ;.\main.c:198: void lcd_8bit_send_char_data(uint8_t data)
+                                    449 ;	---------------------------------
+                                    450 ; Function lcd_8bit_send_char_data
+                                    451 ; ---------------------------------
+      00018F                        452 _lcd_8bit_send_char_data::
+      00018F D3 19            [11]  453 	out	(_portH), a
+                                    454 ;.\main.c:201: LCD_data_write = 0x00;
+      000191 3E 00            [ 7]  455 	ld	a, #0x00
+      000193 D3 21            [11]  456 	out	(_LCD_data_write), a
+                                    457 ;.\main.c:202: }
+      000195 C9               [10]  458 	ret
+                                    459 ;.\main.c:203: void lcd_8bit_send_string(char* str)
+                                    460 ;	---------------------------------
+                                    461 ; Function lcd_8bit_send_string
+                                    462 ; ---------------------------------
+      000196                        463 _lcd_8bit_send_string::
+                                    464 ;.\main.c:205: while (*str)
+      000196                        465 00101$:
+      000196 7E               [ 7]  466 	ld	a, (hl)
+      000197 B7               [ 4]  467 	or	a, a
+      000198 C8               [11]  468 	ret	Z
+                                    469 ;.\main.c:207: lcd_8bit_send_char_data(*str++);
+      000199 23               [ 6]  470 	inc	hl
+      00019A 4F               [ 4]  471 	ld	c, a
+      00019B E5               [11]  472 	push	hl
+      00019C 79               [ 4]  473 	ld	a, c
+      00019D CDr8Fr01         [17]  474 	call	_lcd_8bit_send_char_data
+      0001A0 E1               [10]  475 	pop	hl
+                                    476 ;.\main.c:209: }
+      0001A1 18 F3            [12]  477 	jr	00101$
+                                    478 ;.\main.c:210: void lcd_8bit_set_cursor(uint8_t row, uint8_t coulmn)
+                                    479 ;	---------------------------------
+                                    480 ; Function lcd_8bit_set_cursor
+                                    481 ; ---------------------------------
+      0001A3                        482 _lcd_8bit_set_cursor::
+                                    483 ;.\main.c:212: coulmn--;
+      0001A3 2D               [ 4]  484 	dec	l
+                                    485 ;.\main.c:214: case ROW1: lcd_8bit_send_command((0x80 + coulmn)); break; /* 0x00 -> Decimal : 0  */
+                                    486 ;.\main.c:213: switch (row) {
+      0001A4 FE 01            [ 7]  487 	cp	a, #0x01
+      0001A6 28 0D            [12]  488 	jr	Z, 00101$
+      0001A8 FE 02            [ 7]  489 	cp	a, #0x02
+      0001AA 28 10            [12]  490 	jr	Z, 00102$
+      0001AC FE 03            [ 7]  491 	cp	a, #0x03
+      0001AE 28 13            [12]  492 	jr	Z, 00103$
+      0001B0 D6 04            [ 7]  493 	sub	a, #0x04
+      0001B2 28 16            [12]  494 	jr	Z, 00104$
+      0001B4 C9               [10]  495 	ret
+                                    496 ;.\main.c:214: case ROW1: lcd_8bit_send_command((0x80 + coulmn)); break; /* 0x00 -> Decimal : 0  */
+      0001B5                        497 00101$:
+      0001B5 7D               [ 4]  498 	ld	a, l
+      0001B6 C6 80            [ 7]  499 	add	a, #0x80
+      0001B8 4F               [ 4]  500 	ld	c, a
+      0001B9 C3r88r01         [10]  501 	jp	_lcd_8bit_send_command
+                                    502 ;.\main.c:215: case ROW2: lcd_8bit_send_command((0xc0 + coulmn)); break; /* 0x40 -> Decimal : 64 */
+      0001BC                        503 00102$:
+      0001BC 7D               [ 4]  504 	ld	a, l
+      0001BD C6 C0            [ 7]  505 	add	a, #0xc0
+      0001BF 4F               [ 4]  506 	ld	c, a
+      0001C0 C3r88r01         [10]  507 	jp	_lcd_8bit_send_command
+                                    508 ;.\main.c:216: case ROW3: lcd_8bit_send_command((0x94 + coulmn)); break; /* 0x14 -> Decimal : 20 */
+      0001C3                        509 00103$:
+      0001C3 7D               [ 4]  510 	ld	a, l
+      0001C4 C6 94            [ 7]  511 	add	a, #0x94
+      0001C6 4F               [ 4]  512 	ld	c, a
+      0001C7 C3r88r01         [10]  513 	jp	_lcd_8bit_send_command
+                                    514 ;.\main.c:217: case ROW4: lcd_8bit_send_command((0xd4 + coulmn)); break; /* 0x54 -> Decimal : 84 */
+      0001CA                        515 00104$:
+      0001CA 7D               [ 4]  516 	ld	a, l
+      0001CB C6 D4            [ 7]  517 	add	a, #0xd4
+      0001CD 4F               [ 4]  518 	ld	c, a
+                                    519 ;.\main.c:219: }
+                                    520 ;.\main.c:220: }
+      0001CE C3r88r01         [10]  521 	jp	_lcd_8bit_send_command
+                                    522 ;.\main.c:221: void lcd_8bit_send_uint8_hex_data(uint8_t data) {
+                                    523 ;	---------------------------------
+                                    524 ; Function lcd_8bit_send_uint8_hex_data
+                                    525 ; ---------------------------------
+      0001D1                        526 _lcd_8bit_send_uint8_hex_data::
+      0001D1 DD E5            [15]  527 	push	ix
+      0001D3 DD 21 00 00      [14]  528 	ld	ix,#0
+      0001D7 DD 39            [15]  529 	add	ix,sp
+      0001D9 F5               [11]  530 	push	af
+      0001DA 5F               [ 4]  531 	ld	e, a
+                                    532 ;.\main.c:227: hex_string[0] = hex_chars[(data >> 4) & 0x0F];
+      0001DB 01r6Br00         [10]  533 	ld	bc, #_hex_chars+0
+      0001DE 7B               [ 4]  534 	ld	a, e
+      0001DF 07               [ 4]  535 	rlca
+      0001E0 07               [ 4]  536 	rlca
+      0001E1 07               [ 4]  537 	rlca
+      0001E2 07               [ 4]  538 	rlca
+                                    539 ;	spillPairReg hl
+                                    540 ;	spillPairReg hl
+                                    541 ;	spillPairReg hl
+                                    542 ;	spillPairReg hl
+      0001E3 E6 0F            [ 7]  543 	and	a, #0xf
+      0001E5 6F               [ 4]  544 	ld	l, a
+                                    545 ;	spillPairReg hl
+                                    546 ;	spillPairReg hl
+      0001E6 26 00            [ 7]  547 	ld	h, #0x00
+                                    548 ;	spillPairReg hl
+                                    549 ;	spillPairReg hl
+      0001E8 09               [11]  550 	add	hl, bc
+      0001E9 7E               [ 7]  551 	ld	a, (hl)
+      0001EA DD 77 FE         [19]  552 	ld	-2 (ix), a
+                                    553 ;.\main.c:228: hex_string[1] = hex_chars[data & 0x0F];
+      0001ED 7B               [ 4]  554 	ld	a, e
+      0001EE E6 0F            [ 7]  555 	and	a, #0x0f
+      0001F0 6F               [ 4]  556 	ld	l, a
+                                    557 ;	spillPairReg hl
+                                    558 ;	spillPairReg hl
+      0001F1 26 00            [ 7]  559 	ld	h, #0x00
+                                    560 ;	spillPairReg hl
+                                    561 ;	spillPairReg hl
+      0001F3 09               [11]  562 	add	hl, bc
+      0001F4 7E               [ 7]  563 	ld	a, (hl)
+      0001F5 DD 77 FF         [19]  564 	ld	-1 (ix), a
+                                    565 ;.\main.c:231: for (int i = 0; i < 2; ++i) {
+      0001F8 01 00 00         [10]  566 	ld	bc, #0x0000
+      0001FB                        567 00103$:
+      0001FB 79               [ 4]  568 	ld	a, c
+      0001FC D6 02            [ 7]  569 	sub	a, #0x02
+      0001FE 78               [ 4]  570 	ld	a, b
+      0001FF 17               [ 4]  571 	rla
+      000200 3F               [ 4]  572 	ccf
+      000201 1F               [ 4]  573 	rra
+      000202 DE 80            [ 7]  574 	sbc	a, #0x80
+      000204 30 0F            [12]  575 	jr	NC, 00105$
+                                    576 ;.\main.c:232: lcd_8bit_send_char_data(hex_string[i]);
+      000206 21 00 00         [10]  577 	ld	hl, #0
+      000209 39               [11]  578 	add	hl, sp
+      00020A 09               [11]  579 	add	hl, bc
+      00020B 5E               [ 7]  580 	ld	e, (hl)
+      00020C C5               [11]  581 	push	bc
+      00020D 7B               [ 4]  582 	ld	a, e
+      00020E CDr8Fr01         [17]  583 	call	_lcd_8bit_send_char_data
+      000211 C1               [10]  584 	pop	bc
+                                    585 ;.\main.c:231: for (int i = 0; i < 2; ++i) {
+      000212 03               [ 6]  586 	inc	bc
+      000213 18 E6            [12]  587 	jr	00103$
+      000215                        588 00105$:
+                                    589 ;.\main.c:234: }
+      000215 DD F9            [10]  590 	ld	sp, ix
+      000217 DD E1            [14]  591 	pop	ix
+      000219 C9               [10]  592 	ret
+                                    593 ;.\main.c:236: void p8255_initialize()
+                                    594 ;	---------------------------------
+                                    595 ; Function p8255_initialize
+                                    596 ; ---------------------------------
+      00021A                        597 _p8255_initialize::
+                                    598 ;.\main.c:238: p8255 = P8255_DEFAULT_MODE;
+      00021A 3E 90            [ 7]  599 	ld	a, #0x90
+      00021C D3 69            [11]  600 	out	(_p8255), a
+                                    601 ;.\main.c:239: portB = 0x00;
+      00021E 3E 00            [ 7]  602 	ld	a, #0x00
+      000220 D3 29            [11]  603 	out	(_portB), a
+                                    604 ;.\main.c:240: portC = 0x00;
+      000222 3E 00            [ 7]  605 	ld	a, #0x00
+      000224 D3 49            [11]  606 	out	(_portC), a
+                                    607 ;.\main.c:241: }
+      000226 C9               [10]  608 	ret
+                                    609 ;.\main.c:243: void dot_address()
+                                    610 ;	---------------------------------
+                                    611 ; Function dot_address
+                                    612 ; ---------------------------------
+      000227                        613 _dot_address::
+                                    614 ;.\main.c:245: SETBIT(buffer[0], 2);
+      000227 3Ar00r00         [13]  615 	ld	a, (#_buffer + 0)
+      00022A CB D7            [ 8]  616 	set	2, a
+      00022C 32r00r00         [13]  617 	ld	(#_buffer),a
+                                    618 ;.\main.c:246: SETBIT(buffer[1], 2);
+      00022F 01r01r00         [10]  619 	ld	bc, #_buffer + 1
+      000232 0A               [ 7]  620 	ld	a, (bc)
+      000233 CB D7            [ 8]  621 	set	2, a
+      000235 02               [ 7]  622 	ld	(bc), a
+                                    623 ;.\main.c:248: CLEARBIT(buffer[2], 2);
+      000236 01r02r00         [10]  624 	ld	bc, #_buffer + 2
+      000239 0A               [ 7]  625 	ld	a, (bc)
+      00023A CB 97            [ 8]  626 	res	2, a
+      00023C 02               [ 7]  627 	ld	(bc), a
+                                    628 ;.\main.c:249: CLEARBIT(buffer[3], 2);
+      00023D 01r03r00         [10]  629 	ld	bc, #_buffer + 3
+      000240 0A               [ 7]  630 	ld	a, (bc)
+      000241 CB 97            [ 8]  631 	res	2, a
+      000243 02               [ 7]  632 	ld	(bc), a
+                                    633 ;.\main.c:250: CLEARBIT(buffer[4], 2);
+      000244 01r04r00         [10]  634 	ld	bc, #_buffer + 4
+      000247 0A               [ 7]  635 	ld	a, (bc)
+      000248 CB 97            [ 8]  636 	res	2, a
+      00024A 02               [ 7]  637 	ld	(bc), a
+                                    638 ;.\main.c:251: CLEARBIT(buffer[5], 2);
+      00024B 01r05r00         [10]  639 	ld	bc, #_buffer + 5
+      00024E 0A               [ 7]  640 	ld	a, (bc)
+      00024F CB 97            [ 8]  641 	res	2, a
+      000251 02               [ 7]  642 	ld	(bc), a
+                                    643 ;.\main.c:252: }
+      000252 C9               [10]  644 	ret
+                                    645 ;.\main.c:254: void dot_data()
+                                    646 ;	---------------------------------
+                                    647 ; Function dot_data
+                                    648 ; ---------------------------------
+      000253                        649 _dot_data::
+                                    650 ;.\main.c:256: CLEARBIT(buffer[0], 2);
+      000253 3Ar00r00         [13]  651 	ld	a, (#_buffer + 0)
+      000256 CB 97            [ 8]  652 	res	2, a
+      000258 32r00r00         [13]  653 	ld	(#_buffer),a
+                                    654 ;.\main.c:257: CLEARBIT(buffer[1], 2);
+      00025B 01r01r00         [10]  655 	ld	bc, #_buffer + 1
+      00025E 0A               [ 7]  656 	ld	a, (bc)
+      00025F CB 97            [ 8]  657 	res	2, a
+      000261 02               [ 7]  658 	ld	(bc), a
+                                    659 ;.\main.c:259: SETBIT(buffer[2], 2);
+      000262 01r02r00         [10]  660 	ld	bc, #_buffer + 2
+      000265 0A               [ 7]  661 	ld	a, (bc)
+      000266 CB D7            [ 8]  662 	set	2, a
+      000268 02               [ 7]  663 	ld	(bc), a
+                                    664 ;.\main.c:260: SETBIT(buffer[3], 2);
+      000269 01r03r00         [10]  665 	ld	bc, #_buffer + 3
+      00026C 0A               [ 7]  666 	ld	a, (bc)
+      00026D CB D7            [ 8]  667 	set	2, a
+      00026F 02               [ 7]  668 	ld	(bc), a
+                                    669 ;.\main.c:261: SETBIT(buffer[4], 2);
+      000270 01r04r00         [10]  670 	ld	bc, #_buffer + 4
+      000273 0A               [ 7]  671 	ld	a, (bc)
+      000274 CB D7            [ 8]  672 	set	2, a
+      000276 02               [ 7]  673 	ld	(bc), a
+                                    674 ;.\main.c:262: SETBIT(buffer[5], 2);
+      000277 01r05r00         [10]  675 	ld	bc, #_buffer + 5
+      00027A 0A               [ 7]  676 	ld	a, (bc)
+      00027B CB D7            [ 8]  677 	set	2, a
+      00027D 02               [ 7]  678 	ld	(bc), a
+                                    679 ;.\main.c:263: }
+      00027E C9               [10]  680 	ret
+                                    681 ;.\main.c:265: void address_buffer_write(uint16_t value)
+                                    682 ;	---------------------------------
+                                    683 ; Function address_buffer_write
+                                    684 ; ---------------------------------
+      00027F                        685 _address_buffer_write::
+      00027F 22r08r00         [16]  686 	ld	(_temp16), hl
+                                    687 ;.\main.c:268: buffer[2] = convert[temp16 & 0xf];
+      000282 01r5Br00         [10]  688 	ld	bc, #_convert+0
+      000285 2Ar08r00         [16]  689 	ld	hl, (_temp16)
+      000288 7D               [ 4]  690 	ld	a, l
+      000289 E6 0F            [ 7]  691 	and	a, #0x0f
+      00028B 6F               [ 4]  692 	ld	l, a
+                                    693 ;	spillPairReg hl
+                                    694 ;	spillPairReg hl
+      00028C 26 00            [ 7]  695 	ld	h, #0x00
+                                    696 ;	spillPairReg hl
+                                    697 ;	spillPairReg hl
+      00028E 09               [11]  698 	add	hl, bc
+      00028F 7E               [ 7]  699 	ld	a, (hl)
+      000290 32r02r00         [13]  700 	ld	(#(_buffer + 2)),a
+                                    701 ;.\main.c:269: temp16 >>= 4;
+      000293 AF               [ 4]  702 	xor	a, a
+      000294 21r09r00         [10]  703 	ld	hl, #_temp16+1
+      000297 ED 67            [18]  704 	rrd
+      000299 2B               [ 6]  705 	dec	hl
+      00029A ED 67            [18]  706 	rrd
+                                    707 ;.\main.c:270: buffer[3] = convert[temp16 & 0xf];
+      00029C 2Ar08r00         [16]  708 	ld	hl, (_temp16)
+      00029F 7D               [ 4]  709 	ld	a, l
+      0002A0 E6 0F            [ 7]  710 	and	a, #0x0f
+      0002A2 6F               [ 4]  711 	ld	l, a
+                                    712 ;	spillPairReg hl
+                                    713 ;	spillPairReg hl
+      0002A3 26 00            [ 7]  714 	ld	h, #0x00
+                                    715 ;	spillPairReg hl
+                                    716 ;	spillPairReg hl
+      0002A5 09               [11]  717 	add	hl, bc
+      0002A6 7E               [ 7]  718 	ld	a, (hl)
+      0002A7 32r03r00         [13]  719 	ld	(#(_buffer + 3)),a
+                                    720 ;.\main.c:271: temp16 >>= 4;
+      0002AA AF               [ 4]  721 	xor	a, a
+      0002AB 21r09r00         [10]  722 	ld	hl, #_temp16+1
+      0002AE ED 67            [18]  723 	rrd
+      0002B0 2B               [ 6]  724 	dec	hl
+      0002B1 ED 67            [18]  725 	rrd
+                                    726 ;.\main.c:272: buffer[4] = convert[temp16 & 0xf];
+      0002B3 2Ar08r00         [16]  727 	ld	hl, (_temp16)
+      0002B6 7D               [ 4]  728 	ld	a, l
+      0002B7 E6 0F            [ 7]  729 	and	a, #0x0f
+      0002B9 6F               [ 4]  730 	ld	l, a
+                                    731 ;	spillPairReg hl
+                                    732 ;	spillPairReg hl
+      0002BA 26 00            [ 7]  733 	ld	h, #0x00
+                                    734 ;	spillPairReg hl
+                                    735 ;	spillPairReg hl
+      0002BC 09               [11]  736 	add	hl, bc
+      0002BD 7E               [ 7]  737 	ld	a, (hl)
+      0002BE 32r04r00         [13]  738 	ld	(#(_buffer + 4)),a
+                                    739 ;.\main.c:273: temp16 >>= 4;
+      0002C1 AF               [ 4]  740 	xor	a, a
+      0002C2 21r09r00         [10]  741 	ld	hl, #_temp16+1
+      0002C5 ED 67            [18]  742 	rrd
+      0002C7 2B               [ 6]  743 	dec	hl
+      0002C8 ED 67            [18]  744 	rrd
+                                    745 ;.\main.c:274: buffer[5] = convert[temp16 & 0xf];
+      0002CA 2Ar08r00         [16]  746 	ld	hl, (_temp16)
+      0002CD 7D               [ 4]  747 	ld	a, l
+      0002CE E6 0F            [ 7]  748 	and	a, #0x0f
+      0002D0 6F               [ 4]  749 	ld	l, a
+                                    750 ;	spillPairReg hl
+                                    751 ;	spillPairReg hl
+      0002D1 26 00            [ 7]  752 	ld	h, #0x00
+                                    753 ;	spillPairReg hl
+                                    754 ;	spillPairReg hl
+      0002D3 09               [11]  755 	add	hl, bc
+      0002D4 7E               [ 7]  756 	ld	a, (hl)
+      0002D5 32r05r00         [13]  757 	ld	(#(_buffer + 5)),a
+                                    758 ;.\main.c:275: }
+      0002D8 C9               [10]  759 	ret
+                                    760 ;.\main.c:277: void data_buffer_write(uint8_t value)
+                                    761 ;	---------------------------------
+                                    762 ; Function data_buffer_write
+                                    763 ; ---------------------------------
+      0002D9                        764 _data_buffer_write::
+                                    765 ;.\main.c:279: temp = value;
+      0002D9 32r06r00         [13]  766 	ld	(_temp+0), a
+      0002DC 21r07r00         [10]  767 	ld	hl, #_temp + 1
+      0002DF 36 00            [10]  768 	ld	(hl), #0x00
+                                    769 ;.\main.c:280: buffer[0] = convert[temp & 0xf];
+      0002E1 01r00r00         [10]  770 	ld	bc, #_buffer+0
+      0002E4 11r5Br00         [10]  771 	ld	de, #_convert+0
+      0002E7 2Ar06r00         [16]  772 	ld	hl, (_temp)
+      0002EA 7D               [ 4]  773 	ld	a, l
+      0002EB E6 0F            [ 7]  774 	and	a, #0x0f
+      0002ED 6F               [ 4]  775 	ld	l, a
+                                    776 ;	spillPairReg hl
+                                    777 ;	spillPairReg hl
+      0002EE 26 00            [ 7]  778 	ld	h, #0x00
+                                    779 ;	spillPairReg hl
+                                    780 ;	spillPairReg hl
+      0002F0 19               [11]  781 	add	hl, de
+      0002F1 7E               [ 7]  782 	ld	a, (hl)
+      0002F2 02               [ 7]  783 	ld	(bc), a
+                                    784 ;.\main.c:281: temp >>= 4;
+      0002F3 AF               [ 4]  785 	xor	a, a
+      0002F4 21r07r00         [10]  786 	ld	hl, #_temp+1
+      0002F7 ED 67            [18]  787 	rrd
+      0002F9 2B               [ 6]  788 	dec	hl
+      0002FA ED 67            [18]  789 	rrd
+                                    790 ;.\main.c:282: buffer[1] = convert[temp & 0xf];
+      0002FC 03               [ 6]  791 	inc	bc
+      0002FD 2Ar06r00         [16]  792 	ld	hl, (_temp)
+      000300 7D               [ 4]  793 	ld	a, l
+      000301 E6 0F            [ 7]  794 	and	a, #0x0f
+      000303 6F               [ 4]  795 	ld	l, a
+                                    796 ;	spillPairReg hl
+                                    797 ;	spillPairReg hl
+      000304 26 00            [ 7]  798 	ld	h, #0x00
+                                    799 ;	spillPairReg hl
+                                    800 ;	spillPairReg hl
+      000306 19               [11]  801 	add	hl, de
+      000307 7E               [ 7]  802 	ld	a, (hl)
+      000308 02               [ 7]  803 	ld	(bc), a
+                                    804 ;.\main.c:283: }
+      000309 C9               [10]  805 	ret
+                                    806 ;.\main.c:285: void address_display()
+                                    807 ;	---------------------------------
+                                    808 ; Function address_display
+                                    809 ; ---------------------------------
+      00030A                        810 _address_display::
+                                    811 ;.\main.c:287: temp = PC;
+      00030A 2Ar10r00         [16]  812 	ld	hl, (_PC)
+                                    813 ;.\main.c:288: address_buffer_write(temp);
+      00030D 22r06r00         [16]  814 	ld	(_temp), hl
+                                    815 ;.\main.c:289: }
+      000310 C3r7Fr02         [10]  816 	jp	_address_buffer_write
+                                    817 ;.\main.c:291: void data_display()
+                                    818 ;	---------------------------------
+                                    819 ; Function data_display
+                                    820 ; ---------------------------------
+      000313                        821 _data_display::
+                                    822 ;.\main.c:293: dptr = PC;
+      000313 2Ar10r00         [16]  823 	ld	hl, (_PC)
+                                    824 ;.\main.c:295: uint8_t data = *dptr;
+      000316 22r24r00         [16]  825 	ld	(_dptr), hl
+      000319 4E               [ 7]  826 	ld	c, (hl)
+                                    827 ;.\main.c:297: data_buffer_write(data);
+      00031A 79               [ 4]  828 	ld	a, c
+                                    829 ;.\main.c:298: }
+      00031B C3rD9r02         [10]  830 	jp	_data_buffer_write
+                                    831 ;.\main.c:300: void read_memory()
+                                    832 ;	---------------------------------
+                                    833 ; Function read_memory
+                                    834 ; ---------------------------------
+      00031E                        835 _read_memory::
+                                    836 ;.\main.c:302: address_display();
+      00031E CDr0Ar03         [17]  837 	call	_address_display
+                                    838 ;.\main.c:303: data_display();
+                                    839 ;.\main.c:304: }
+      000321 C3r13r03         [10]  840 	jp	_data_display
+                                    841 ;.\main.c:306: void key_address()
+                                    842 ;	---------------------------------
+                                    843 ; Function key_address
+                                    844 ; ---------------------------------
+      000324                        845 _key_address::
+                                    846 ;.\main.c:308: state = 1;
+      000324 21r0Er00         [10]  847 	ld	hl, #_state
+      000327 36 01            [10]  848 	ld	(hl), #0x01
+                                    849 ;.\main.c:309: hit = 0;
+      000329 21r0Fr00         [10]  850 	ld	hl, #_hit
+      00032C 36 00            [10]  851 	ld	(hl), #0x00
+                                    852 ;.\main.c:310: read_memory();
+      00032E CDr1Er03         [17]  853 	call	_read_memory
+                                    854 ;.\main.c:311: dot_address();
+                                    855 ;.\main.c:312: }
+      000331 C3r27r02         [10]  856 	jp	_dot_address
+                                    857 ;.\main.c:314: void key_data()
+                                    858 ;	---------------------------------
+                                    859 ; Function key_data
+                                    860 ; ---------------------------------
+      000334                        861 _key_data::
+                                    862 ;.\main.c:316: state = 2;
+      000334 21r0Er00         [10]  863 	ld	hl, #_state
+      000337 36 02            [10]  864 	ld	(hl), #0x02
+                                    865 ;.\main.c:317: hit = 0;
+      000339 21r0Fr00         [10]  866 	ld	hl, #_hit
+      00033C 36 00            [10]  867 	ld	(hl), #0x00
+                                    868 ;.\main.c:318: read_memory();
+      00033E CDr1Er03         [17]  869 	call	_read_memory
+                                    870 ;.\main.c:319: dot_data();
+                                    871 ;.\main.c:320: }
+      000341 C3r53r02         [10]  872 	jp	_dot_data
+                                    873 ;.\main.c:322: void key_plus()
+                                    874 ;	---------------------------------
+                                    875 ; Function key_plus
+                                    876 ; ---------------------------------
+      000344                        877 _key_plus::
+                                    878 ;.\main.c:325: if (state == 1 || state == 2)
+      000344 3Ar0Er00         [13]  879 	ld	a, (_state+0)
+      000347 3D               [ 4]  880 	dec	a
+      000348 28 06            [12]  881 	jr	Z, 00101$
+      00034A 3Ar0Er00         [13]  882 	ld	a, (_state+0)
+      00034D D6 02            [ 7]  883 	sub	a, #0x02
+      00034F C0               [11]  884 	ret	NZ
+      000350                        885 00101$:
+                                    886 ;.\main.c:327: PC++;
+      000350 2Ar10r00         [16]  887 	ld	hl, (_PC)
+      000353 23               [ 6]  888 	inc	hl
+      000354 22r10r00         [16]  889 	ld	(_PC), hl
+                                    890 ;.\main.c:328: key_data();
+                                    891 ;.\main.c:330: }
+      000357 C3r34r03         [10]  892 	jp	_key_data
+                                    893 ;.\main.c:332: void key_minus()
+                                    894 ;	---------------------------------
+                                    895 ; Function key_minus
+                                    896 ; ---------------------------------
+      00035A                        897 _key_minus::
+                                    898 ;.\main.c:334: if (state == 1 | state == 2)
+      00035A 3Ar0Er00         [13]  899 	ld	a, (_state+0)
+      00035D 3D               [ 4]  900 	dec	a
+      00035E 3E 01            [ 7]  901 	ld	a, #0x01
+      000360 28 01            [12]  902 	jr	Z, 00113$
+      000362 AF               [ 4]  903 	xor	a, a
+      000363                        904 00113$:
+      000363 4F               [ 4]  905 	ld	c, a
+      000364 3Ar0Er00         [13]  906 	ld	a, (_state+0)
+      000367 D6 02            [ 7]  907 	sub	a, #0x02
+      000369 3E 01            [ 7]  908 	ld	a, #0x01
+      00036B 28 01            [12]  909 	jr	Z, 00115$
+      00036D AF               [ 4]  910 	xor	a, a
+      00036E                        911 00115$:
+      00036E B1               [ 4]  912 	or	a, c
+      00036F B7               [ 4]  913 	or	a, a
+      000370 C8               [11]  914 	ret	Z
+                                    915 ;.\main.c:336: PC--;
+      000371 2Ar10r00         [16]  916 	ld	hl, (_PC)
+      000374 2B               [ 6]  917 	dec	hl
+      000375 22r10r00         [16]  918 	ld	(_PC), hl
+                                    919 ;.\main.c:337: key_data();
+                                    920 ;.\main.c:339: }
+      000378 C3r34r03         [10]  921 	jp	_key_data
+                                    922 ;.\main.c:341: void key_PC()
+                                    923 ;	---------------------------------
+                                    924 ; Function key_PC
+                                    925 ; ---------------------------------
+      00037B                        926 _key_PC::
+                                    927 ;.\main.c:343: PC = save_PC;
+      00037B 2Ar12r00         [16]  928 	ld	hl, (_save_PC)
+      00037E 22r10r00         [16]  929 	ld	(_PC), hl
+                                    930 ;.\main.c:344: key_data();
+                                    931 ;.\main.c:345: }
+      000381 C3r34r03         [10]  932 	jp	_key_data
+                                    933 ;.\main.c:347: void hex_address()
+                                    934 ;	---------------------------------
+                                    935 ; Function hex_address
+                                    936 ; ---------------------------------
+      000384                        937 _hex_address::
+                                    938 ;.\main.c:349: if (hit == 0)
+      000384 3Ar0Fr00         [13]  939 	ld	a, (_hit+0)
+      000387 B7               [ 4]  940 	or	a, a
+      000388 20 06            [12]  941 	jr	NZ, 00102$
+                                    942 ;.\main.c:351: PC = 0;
+      00038A 21 00 00         [10]  943 	ld	hl, #0x0000
+      00038D 22r10r00         [16]  944 	ld	(_PC), hl
+      000390                        945 00102$:
+                                    946 ;.\main.c:353: hit = 1;
+      000390 21r0Fr00         [10]  947 	ld	hl, #_hit
+      000393 36 01            [10]  948 	ld	(hl), #0x01
+                                    949 ;.\main.c:354: PC <<= 4;
+      000395 2Ar10r00         [16]  950 	ld	hl, (_PC)
+      000398 29               [11]  951 	add	hl, hl
+      000399 29               [11]  952 	add	hl, hl
+      00039A 29               [11]  953 	add	hl, hl
+      00039B 29               [11]  954 	add	hl, hl
+      00039C 22r10r00         [16]  955 	ld	(_PC), hl
+                                    956 ;.\main.c:355: PC |= key;
+      00039F 3Ar0Cr00         [13]  957 	ld	a, (_key+0)
+      0003A2 4F               [ 4]  958 	ld	c, a
+      0003A3 3Ar10r00         [13]  959 	ld	a, (_PC+0)
+      0003A6 B1               [ 4]  960 	or	a, c
+      0003A7 32r10r00         [13]  961 	ld	(_PC+0), a
+                                    962 ;.\main.c:356: read_memory();
+      0003AA CDr1Er03         [17]  963 	call	_read_memory
+                                    964 ;.\main.c:357: dot_address();
+                                    965 ;.\main.c:358: }
+      0003AD C3r27r02         [10]  966 	jp	_dot_address
+                                    967 ;.\main.c:360: void data_hex()
+                                    968 ;	---------------------------------
+                                    969 ; Function data_hex
+                                    970 ; ---------------------------------
+      0003B0                        971 _data_hex::
+                                    972 ;.\main.c:362: dptr = PC;
+      0003B0 2Ar10r00         [16]  973 	ld	hl, (_PC)
+      0003B3 22r24r00         [16]  974 	ld	(_dptr), hl
+                                    975 ;.\main.c:363: data_in = *dptr;
+      0003B6 ED 4Br24r00      [20]  976 	ld	bc, (_dptr)
+      0003BA 0A               [ 7]  977 	ld	a, (bc)
+      0003BB 32r0Dr00         [13]  978 	ld	(_data_in+0), a
+                                    979 ;.\main.c:365: if (hit == 0)
+      0003BE 3Ar0Fr00         [13]  980 	ld	a, (_hit+0)
+      0003C1 B7               [ 4]  981 	or	a, a
+      0003C2 20 05            [12]  982 	jr	NZ, 00102$
+                                    983 ;.\main.c:367: data_in = 0;
+      0003C4 21r0Dr00         [10]  984 	ld	hl, #_data_in
+      0003C7 36 00            [10]  985 	ld	(hl), #0x00
+      0003C9                        986 00102$:
+                                    987 ;.\main.c:370: hit = 1;
+      0003C9 21r0Fr00         [10]  988 	ld	hl, #_hit
+      0003CC 36 01            [10]  989 	ld	(hl), #0x01
+                                    990 ;.\main.c:371: data_in = data_in << 4;
+      0003CE 3Ar0Dr00         [13]  991 	ld	a, (_data_in+0)
+      0003D1 87               [ 4]  992 	add	a, a
+      0003D2 87               [ 4]  993 	add	a, a
+      0003D3 87               [ 4]  994 	add	a, a
+      0003D4 87               [ 4]  995 	add	a, a
+                                    996 ;.\main.c:372: data_in = data_in | key;
+      0003D5 32r0Dr00         [13]  997 	ld	(_data_in+0), a
+      0003D8 21r0Cr00         [10]  998 	ld	hl, #_key
+      0003DB B6               [ 7]  999 	or	a, (hl)
+                                   1000 ;.\main.c:374: *dptr = data_in;
+      0003DC 32r0Dr00         [13] 1001 	ld	(_data_in+0), a
+      0003DF 02               [ 7] 1002 	ld	(bc), a
+                                   1003 ;.\main.c:376: read_memory();
+      0003E0 CDr1Er03         [17] 1004 	call	_read_memory
+                                   1005 ;.\main.c:377: dot_data();
+                                   1006 ;.\main.c:378: }
+      0003E3 C3r53r02         [10] 1007 	jp	_dot_data
+                                   1008 ;.\main.c:379: void key_reg()
+                                   1009 ;	---------------------------------
+                                   1010 ; Function key_reg
+                                   1011 ; ---------------------------------
+      0003E6                       1012 _key_reg::
+                                   1013 ;.\main.c:381: buffer[5] = 0x67;
+      0003E6 21r05r00         [10] 1014 	ld	hl, #_buffer + 5
+      0003E9 36 67            [10] 1015 	ld	(hl), #0x67
+                                   1016 ;.\main.c:382: buffer[4] = 0x8C;
+      0003EB 21r04r00         [10] 1017 	ld	hl, #_buffer + 4
+      0003EE 36 8C            [10] 1018 	ld	(hl), #0x8c
+                                   1019 ;.\main.c:383: buffer[3] = 0x05;
+      0003F0 21r03r00         [10] 1020 	ld	hl, #_buffer + 3
+      0003F3 36 05            [10] 1021 	ld	(hl), #0x05
+                                   1022 ;.\main.c:384: buffer[2] = 0xFF;
+      0003F5 21r02r00         [10] 1023 	ld	hl, #_buffer + 2
+      0003F8 36 FF            [10] 1024 	ld	(hl), #0xff
+                                   1025 ;.\main.c:385: buffer[1] = 0xFF;
+      0003FA 21r01r00         [10] 1026 	ld	hl, #_buffer + 1
+      0003FD 36 FF            [10] 1027 	ld	(hl), #0xff
+                                   1028 ;.\main.c:386: buffer[0] = 0xFF;
+      0003FF 21r00r00         [10] 1029 	ld	hl, #_buffer
+      000402 36 FF            [10] 1030 	ld	(hl), #0xff
+                                   1031 ;.\main.c:388: state = 3;    /* register display state = 3 with hex key */
+      000404 21r0Er00         [10] 1032 	ld	hl, #_state
+      000407 36 03            [10] 1033 	ld	(hl), #0x03
+                                   1034 ;.\main.c:390: }
+      000409 C9               [10] 1035 	ret
+                                   1036 ;.\main.c:392: void reg_AF()
+                                   1037 ;	---------------------------------
+                                   1038 ; Function reg_AF
+                                   1039 ; ---------------------------------
+      00040A                       1040 _reg_AF::
+                                   1041 ;.\main.c:395: temp16 = USER_AF;
+      00040A 2Ar14r00         [16] 1042 	ld	hl, (_USER_AF)
+                                   1043 ;.\main.c:397: address_buffer_write(temp16);
+      00040D 22r08r00         [16] 1044 	ld	(_temp16), hl
+      000410 CDr7Fr02         [17] 1045 	call	_address_buffer_write
+                                   1046 ;.\main.c:400: buffer[1] = 0x06;
+      000413 21r01r00         [10] 1047 	ld	hl, #_buffer + 1
+      000416 36 06            [10] 1048 	ld	(hl), #0x06
+                                   1049 ;.\main.c:401: buffer[0] = 0x8E;
+      000418 21r00r00         [10] 1050 	ld	hl, #_buffer
+      00041B 36 8E            [10] 1051 	ld	(hl), #0x8e
+                                   1052 ;.\main.c:402: }
+      00041D C9               [10] 1053 	ret
+                                   1054 ;.\main.c:403: void reg_BC()
+                                   1055 ;	---------------------------------
+                                   1056 ; Function reg_BC
+                                   1057 ; ---------------------------------
+      00041E                       1058 _reg_BC::
+                                   1059 ;.\main.c:406: temp16 = USER_BC;
+      00041E 2Ar16r00         [16] 1060 	ld	hl, (_USER_BC)
+                                   1061 ;.\main.c:408: address_buffer_write(temp16);
+      000421 22r08r00         [16] 1062 	ld	(_temp16), hl
+      000424 CDr7Fr02         [17] 1063 	call	_address_buffer_write
+                                   1064 ;.\main.c:411: buffer[1] = 0xA4;
+      000427 21r01r00         [10] 1065 	ld	hl, #_buffer + 1
+      00042A 36 A4            [10] 1066 	ld	(hl), #0xa4
+                                   1067 ;.\main.c:412: buffer[0] = 0x9C;
+      00042C 21r00r00         [10] 1068 	ld	hl, #_buffer
+      00042F 36 9C            [10] 1069 	ld	(hl), #0x9c
+                                   1070 ;.\main.c:413: }
+      000431 C9               [10] 1071 	ret
+                                   1072 ;.\main.c:414: void reg_DE()
+                                   1073 ;	---------------------------------
+                                   1074 ; Function reg_DE
+                                   1075 ; ---------------------------------
+      000432                       1076 _reg_DE::
+                                   1077 ;.\main.c:417: temp16 = USER_DE;
+      000432 2Ar18r00         [16] 1078 	ld	hl, (_USER_DE)
+                                   1079 ;.\main.c:419: address_buffer_write(temp16);
+      000435 22r08r00         [16] 1080 	ld	(_temp16), hl
+      000438 CDr7Fr02         [17] 1081 	call	_address_buffer_write
+                                   1082 ;.\main.c:422: buffer[1] = 0x64;
+      00043B 21r01r00         [10] 1083 	ld	hl, #_buffer + 1
+      00043E 36 64            [10] 1084 	ld	(hl), #0x64
+                                   1085 ;.\main.c:423: buffer[0] = 0x8C;
+      000440 21r00r00         [10] 1086 	ld	hl, #_buffer
+      000443 36 8C            [10] 1087 	ld	(hl), #0x8c
+                                   1088 ;.\main.c:424: }
+      000445 C9               [10] 1089 	ret
+                                   1090 ;.\main.c:425: void reg_HL()
+                                   1091 ;	---------------------------------
+                                   1092 ; Function reg_HL
+                                   1093 ; ---------------------------------
+      000446                       1094 _reg_HL::
+                                   1095 ;.\main.c:427: temp16 = USER_HL;
+      000446 2Ar1Ar00         [16] 1096 	ld	hl, (_USER_HL)
+                                   1097 ;.\main.c:429: address_buffer_write(temp16);
+      000449 22r08r00         [16] 1098 	ld	(_temp16), hl
+      00044C CDr7Fr02         [17] 1099 	call	_address_buffer_write
+                                   1100 ;.\main.c:431: buffer[1] = 0x26;
+      00044F 21r01r00         [10] 1101 	ld	hl, #_buffer + 1
+      000452 36 26            [10] 1102 	ld	(hl), #0x26
+                                   1103 ;.\main.c:432: buffer[0] = 0xBC;
+      000454 21r00r00         [10] 1104 	ld	hl, #_buffer
+      000457 36 BC            [10] 1105 	ld	(hl), #0xbc
+                                   1106 ;.\main.c:433: }
+      000459 C9               [10] 1107 	ret
+                                   1108 ;.\main.c:434: void reg_IX()
+                                   1109 ;	---------------------------------
+                                   1110 ; Function reg_IX
+                                   1111 ; ---------------------------------
+      00045A                       1112 _reg_IX::
+                                   1113 ;.\main.c:436: temp16 = USER_IX;
+      00045A 2Ar1Cr00         [16] 1114 	ld	hl, (_USER_IX)
+                                   1115 ;.\main.c:438: address_buffer_write(temp16);
+      00045D 22r08r00         [16] 1116 	ld	(_temp16), hl
+      000460 CDr7Fr02         [17] 1117 	call	_address_buffer_write
+                                   1118 ;.\main.c:440: buffer[1] = 0x77;
+      000463 21r01r00         [10] 1119 	ld	hl, #_buffer + 1
+      000466 36 77            [10] 1120 	ld	(hl), #0x77
+                                   1121 ;.\main.c:441: buffer[0] = 0x67;
+      000468 21r00r00         [10] 1122 	ld	hl, #_buffer
+      00046B 36 67            [10] 1123 	ld	(hl), #0x67
+                                   1124 ;.\main.c:442: }
+      00046D C9               [10] 1125 	ret
+                                   1126 ;.\main.c:443: void reg_IY()
+                                   1127 ;	---------------------------------
+                                   1128 ; Function reg_IY
+                                   1129 ; ---------------------------------
+      00046E                       1130 _reg_IY::
+                                   1131 ;.\main.c:446: temp16 = USER_IY;
+      00046E 2Ar1Er00         [16] 1132 	ld	hl, (_USER_IY)
+                                   1133 ;.\main.c:448: address_buffer_write(temp16);
+      000471 22r08r00         [16] 1134 	ld	(_temp16), hl
+      000474 CDr7Fr02         [17] 1135 	call	_address_buffer_write
+                                   1136 ;.\main.c:451: buffer[1] = 0x77;
+      000477 21r01r00         [10] 1137 	ld	hl, #_buffer + 1
+      00047A 36 77            [10] 1138 	ld	(hl), #0x77
+                                   1139 ;.\main.c:452: buffer[0] = 0xAE;
+      00047C 21r00r00         [10] 1140 	ld	hl, #_buffer
+      00047F 36 AE            [10] 1141 	ld	(hl), #0xae
+                                   1142 ;.\main.c:453: }
+      000481 C9               [10] 1143 	ret
+                                   1144 ;.\main.c:454: void reg_SP()
+                                   1145 ;	---------------------------------
+                                   1146 ; Function reg_SP
+                                   1147 ; ---------------------------------
+      000482                       1148 _reg_SP::
+                                   1149 ;.\main.c:457: temp16 = USER_SP;
+      000482 2Ar20r00         [16] 1150 	ld	hl, (_USER_SP)
+                                   1151 ;.\main.c:459: address_buffer_write(temp16);
+      000485 22r08r00         [16] 1152 	ld	(_temp16), hl
+      000488 CDr7Fr02         [17] 1153 	call	_address_buffer_write
+                                   1154 ;.\main.c:462: buffer[1] = 0x85;
+      00048B 21r01r00         [10] 1155 	ld	hl, #_buffer + 1
+      00048E 36 85            [10] 1156 	ld	(hl), #0x85
+                                   1157 ;.\main.c:463: buffer[0] = 0x0E;
+      000490 21r00r00         [10] 1158 	ld	hl, #_buffer
+      000493 36 0E            [10] 1159 	ld	(hl), #0x0e
+                                   1160 ;.\main.c:464: }
+      000495 C9               [10] 1161 	ret
+                                   1162 ;.\main.c:466: void reg_display()
+                                   1163 ;	---------------------------------
+                                   1164 ; Function reg_display
+                                   1165 ; ---------------------------------
+      000496                       1166 _reg_display::
+                                   1167 ;.\main.c:469: switch (key)
+      000496 3E 06            [ 7] 1168 	ld	a, #0x06
+      000498 FD 21r0Cr00      [14] 1169 	ld	iy, #_key
+      00049C FD 96 00         [19] 1170 	sub	a, 0 (iy)
+      00049F D8               [11] 1171 	ret	C
+      0004A0 FD 4E 00         [19] 1172 	ld	c, 0 (iy)
+      0004A3 06 00            [ 7] 1173 	ld	b, #0x00
+      0004A5 21rACr04         [10] 1174 	ld	hl, #00118$
+      0004A8 09               [11] 1175 	add	hl, bc
+      0004A9 09               [11] 1176 	add	hl, bc
+      0004AA 09               [11] 1177 	add	hl, bc
+      0004AB E9               [ 4] 1178 	jp	(hl)
+      0004AC                       1179 00118$:
+      0004AC C3r0Ar04         [10] 1180 	jp	_reg_AF
+      0004AF C3r1Er04         [10] 1181 	jp	_reg_BC
+      0004B2 C3r32r04         [10] 1182 	jp	_reg_DE
+      0004B5 C3r46r04         [10] 1183 	jp	_reg_HL
+      0004B8 C3r5Ar04         [10] 1184 	jp	_reg_IX
+      0004BB C3r6Er04         [10] 1185 	jp	_reg_IY
+                                   1186 ;.\main.c:471: case 0: reg_AF(); break;
+                                   1187 ;.\main.c:472: case 1: reg_BC(); break;
+                                   1188 ;.\main.c:473: case 2: reg_DE(); break;
+                                   1189 ;.\main.c:474: case 3: reg_HL(); break;
+                                   1190 ;.\main.c:475: case 4: reg_IX(); break;
+                                   1191 ;.\main.c:476: case 5: reg_IY(); break;
+                                   1192 ;.\main.c:477: case 6: reg_SP(); break;
+                                   1193 ;.\main.c:478: }
+                                   1194 ;.\main.c:479: }
+      0004BE C3r82r04         [10] 1195 	jp	_reg_SP
+                                   1196 ;.\main.c:481: void key_step()
+                                   1197 ;	---------------------------------
+                                   1198 ; Function key_step
+                                   1199 ; ---------------------------------
+      0004C1                       1200 _key_step::
+                                   1201 ;.\main.c:518: __endasm;
+      0004C1 ED 73r22r00      [20] 1202 	ld(_SYS_SP),	sp; save system stack
+      0004C5 ED 7Br20r00      [20] 1203 	ld	sp, (_USER_SP); reload with user stack
+                                   1204 ;	load CPU registers with user registers
+      0004C9 2Ar1Er00         [16] 1205 	ld	hl, (_USER_IY)
+      0004CC E5               [11] 1206 	push	hl
+      0004CD 2Ar1Cr00         [16] 1207 	ld	hl, (_USER_IX)
+      0004D0 E5               [11] 1208 	push	hl
+      0004D1 2Ar18r00         [16] 1209 	ld	hl, (_USER_DE)
+      0004D4 E5               [11] 1210 	push	hl
+      0004D5 2Ar16r00         [16] 1211 	ld	hl, (_USER_BC)
+      0004D8 E5               [11] 1212 	push	hl
+      0004D9 2Ar14r00         [16] 1213 	ld	hl, (_USER_AF)
+      0004DC E5               [11] 1214 	push	hl
+      0004DD F1               [10] 1215 	pop	af
+      0004DE C1               [10] 1216 	pop	bc
+      0004DF D1               [10] 1217 	pop	de
+      0004E0 DD E1            [14] 1218 	pop	ix
+      0004E2 FD E1            [14] 1219 	pop	iy
+      0004E4 2Ar10r00         [16] 1220 	ld	hl, (_PC)
+      0004E7 E5               [11] 1221 	push	hl
+      0004E8 32r0Ar00         [13] 1222 	ld(_temp8),	a
+      0004EB 3E 40            [ 7] 1223 	ld	a, #0x40
+      0004ED D3 0D            [11] 1224 	out(_portE),	a
+      0004EF 3Ar0Ar00         [13] 1225 	ld	a, (_temp8) ; 1st M1
+      0004F2 2Ar1Ar00         [16] 1226 	ld	hl, (_USER_HL) ; 2nd M1
+      0004F5 C9               [10] 1227 	ret	; 3rd M1
+                                   1228 ;.\main.c:520: }
+      0004F6 C9               [10] 1229 	ret
+                                   1230 ;.\main.c:522: void key_go()
+                                   1231 ;	---------------------------------
+                                   1232 ; Function key_go
+                                   1233 ; ---------------------------------
+      0004F7                       1234 _key_go::
+                                   1235 ;.\main.c:524: if (state == 1 || state == 2)
+      0004F7 3Ar0Er00         [13] 1236 	ld	a, (_state+0)
+      0004FA 3D               [ 4] 1237 	dec	a
+      0004FB 28 06            [12] 1238 	jr	Z, 00101$
+      0004FD 3Ar0Er00         [13] 1239 	ld	a, (_state+0)
+      000500 D6 02            [ 7] 1240 	sub	a, #0x02
+      000502 C0               [11] 1241 	ret	NZ
+      000503                       1242 00101$:
+                                   1243 ;.\main.c:555: __endasm;
+      000503 ED 73r22r00      [20] 1244 	ld(_SYS_SP),	sp; save system stack
+      000507 ED 7Br20r00      [20] 1245 	ld	sp, (_USER_SP); reload with user stack
+                                   1246 ;	load CPU registers with user registers
+      00050B 2Ar1Er00         [16] 1247 	ld	hl, (_USER_IY)
+      00050E E5               [11] 1248 	push	hl
+      00050F 2Ar1Cr00         [16] 1249 	ld	hl, (_USER_IX)
+      000512 E5               [11] 1250 	push	hl
+      000513 2Ar18r00         [16] 1251 	ld	hl, (_USER_DE)
+      000516 E5               [11] 1252 	push	hl
+      000517 2Ar16r00         [16] 1253 	ld	hl, (_USER_BC)
+      00051A E5               [11] 1254 	push	hl
+      00051B 2Ar14r00         [16] 1255 	ld	hl, (_USER_AF)
+      00051E E5               [11] 1256 	push	hl
+      00051F F1               [10] 1257 	pop	af
+      000520 C1               [10] 1258 	pop	bc
+      000521 D1               [10] 1259 	pop	de
+      000522 DD E1            [14] 1260 	pop	ix
+      000524 FD E1            [14] 1261 	pop	iy
+      000526 2Ar10r00         [16] 1262 	ld	hl, (_PC)
+      000529 E5               [11] 1263 	push	hl
+      00052A 2Ar1Ar00         [16] 1264 	ld	hl, (_USER_HL)
+                                   1265 ;.\main.c:557: }
+      00052D C9               [10] 1266 	ret
+                                   1267 ;.\main.c:559: void key_usart_receive_byte(void)
+                                   1268 ;	---------------------------------
+                                   1269 ; Function key_usart_receive_byte
+                                   1270 ; ---------------------------------
+      00052E                       1271 _key_usart_receive_byte::
+                                   1272 ;.\main.c:561: temp8 = 0x00;
+      00052E 21r0Ar00         [10] 1273 	ld	hl, #_temp8
+      000531 36 00            [10] 1274 	ld	(hl), #0x00
+                                   1275 ;.\main.c:562: portE = 0x00;
+      000533 3E 00            [ 7] 1276 	ld	a, #0x00
+      000535 D3 0D            [11] 1277 	out	(_portE), a
+                                   1278 ;.\main.c:564: lcd_8bit_send_command(_LCD_CLEAR);
+      000537 3E 01            [ 7] 1279 	ld	a, #0x01
+      000539 CDr88r01         [17] 1280 	call	_lcd_8bit_send_command
+                                   1281 ;.\main.c:565: delay_ms(1);
+      00053C 21 01 00         [10] 1282 	ld	hl, #0x0001
+      00053F CDr02r01         [17] 1283 	call	_delay_ms
+                                   1284 ;.\main.c:566: lcd_8bit_set_cursor(1, 1);
+                                   1285 ;	spillPairReg hl
+                                   1286 ;	spillPairReg hl
+      000542 3E 01            [ 7] 1287 	ld	a,#0x01
+      000544 6F               [ 4] 1288 	ld	l,a
+      000545 CDrA3r01         [17] 1289 	call	_lcd_8bit_set_cursor
+                                   1290 ;.\main.c:567: lcd_8bit_send_string("Serial Mode");
+      000548 21r8Cr05         [10] 1291 	ld	hl, #___str_3
+      00054B CDr96r01         [17] 1292 	call	_lcd_8bit_send_string
+                                   1293 ;.\main.c:569: while (1)
+      00054E                       1294 00106$:
+                                   1295 ;.\main.c:571: uint8_t keypad_col_value = portA;
+      00054E DB 09            [11] 1296 	in	a, (_portA)
+                                   1297 ;.\main.c:572: if ((keypad_col_value & 0x80) == 0x80)
+      000550 E6 80            [ 7] 1298 	and	a, #0x80
+      000552 D6 80            [ 7] 1299 	sub	a, #0x80
+      000554 20 F8            [12] 1300 	jr	NZ, 00106$
+                                   1301 ;.\main.c:574: temp8 = USART_READ;
+      000556 DB 1D            [11] 1302 	in	a, (_USART_READ)
+      000558 32r0Ar00         [13] 1303 	ld	(_temp8+0), a
+                                   1304 ;.\main.c:575: portE = 0x80;
+      00055B 3E 80            [ 7] 1305 	ld	a, #0x80
+      00055D D3 0D            [11] 1306 	out	(_portE), a
+                                   1307 ;.\main.c:577: if (temp8 == 0xE4)
+      00055F 3Ar0Ar00         [13] 1308 	ld	a, (_temp8+0)
+      000562 D6 E4            [ 7] 1309 	sub	a, #0xe4
+      000564 20 17            [12] 1310 	jr	NZ, 00102$
+                                   1311 ;.\main.c:579: lcd_8bit_send_command(_LCD_CLEAR);
+      000566 3E 01            [ 7] 1312 	ld	a, #0x01
+      000568 CDr88r01         [17] 1313 	call	_lcd_8bit_send_command
+                                   1314 ;.\main.c:580: delay_ms(1);
+      00056B 21 01 00         [10] 1315 	ld	hl, #0x0001
+      00056E CDr02r01         [17] 1316 	call	_delay_ms
+                                   1317 ;.\main.c:581: lcd_8bit_set_cursor(1, 1);
+                                   1318 ;	spillPairReg hl
+                                   1319 ;	spillPairReg hl
+      000571 3E 01            [ 7] 1320 	ld	a,#0x01
+      000573 6F               [ 4] 1321 	ld	l,a
+      000574 CDrA3r01         [17] 1322 	call	_lcd_8bit_set_cursor
+                                   1323 ;.\main.c:582: lcd_8bit_send_string("Monitor Mode");
+                                   1324 ;.\main.c:583: break;
+      000577 21r98r05         [10] 1325 	ld	hl, #___str_4
+      00057A C3r96r01         [10] 1326 	jp	_lcd_8bit_send_string
+      00057D                       1327 00102$:
+                                   1328 ;.\main.c:586: key = temp8;
+      00057D 3Ar0Ar00         [13] 1329 	ld	a, (_temp8+0)
+      000580 32r0Cr00         [13] 1330 	ld	(_key+0), a
+                                   1331 ;.\main.c:587: key_exe();
+      000583 CDrE8r06         [17] 1332 	call	_key_exe
+                                   1333 ;.\main.c:589: portE = 0x00;
+      000586 3E 00            [ 7] 1334 	ld	a, #0x00
+      000588 D3 0D            [11] 1335 	out	(_portE), a
+                                   1336 ;.\main.c:593: }
+      00058A 18 C2            [12] 1337 	jr	00106$
+      00058C                       1338 ___str_3:
+      00058C 53 65 72 69 61 6C 20  1339 	.ascii "Serial Mode"
+             4D 6F 64 65
+      000597 00                    1340 	.db 0x00
+      000598                       1341 ___str_4:
+      000598 4D 6F 6E 69 74 6F 72  1342 	.ascii "Monitor Mode"
+             20 4D 6F 64 65
+      0005A4 00                    1343 	.db 0x00
+                                   1344 ;.\main.c:595: char key_code(char n)
+                                   1345 ;	---------------------------------
+                                   1346 ; Function key_code
+                                   1347 ; ---------------------------------
+      0005A5                       1348 _key_code::
+                                   1349 ;.\main.c:597: switch (n)
+      0005A5 FE 21            [ 7] 1350 	cp	a, #0x21
+      0005A7 28 45            [12] 1351 	jr	Z, 00102$
+      0005A9 FE 22            [ 7] 1352 	cp	a, #0x22
+      0005AB 28 48            [12] 1353 	jr	Z, 00103$
+      0005AD FE 23            [ 7] 1354 	cp	a, #0x23
+      0005AF 28 4B            [12] 1355 	jr	Z, 00104$
+      0005B1 FE 24            [ 7] 1356 	cp	a, #0x24
+      0005B3 28 78            [12] 1357 	jr	Z, 00111$
+      0005B5 FE 28            [ 7] 1358 	cp	a, #0x28
+      0005B7 28 4A            [12] 1359 	jr	Z, 00105$
+      0005B9 FE 29            [ 7] 1360 	cp	a, #0x29
+      0005BB 28 4D            [12] 1361 	jr	Z, 00106$
+      0005BD FE 2A            [ 7] 1362 	cp	a, #0x2a
+      0005BF 28 50            [12] 1363 	jr	Z, 00107$
+      0005C1 FE 2B            [ 7] 1364 	cp	a, #0x2b
+      0005C3 28 6F            [12] 1365 	jr	Z, 00112$
+      0005C5 FE 2F            [ 7] 1366 	cp	a, #0x2f
+      0005C7 28 4F            [12] 1367 	jr	Z, 00108$
+      0005C9 FE 30            [ 7] 1368 	cp	a, #0x30
+      0005CB 28 52            [12] 1369 	jr	Z, 00109$
+      0005CD FE 31            [ 7] 1370 	cp	a, #0x31
+      0005CF 28 55            [12] 1371 	jr	Z, 00110$
+      0005D1 FE 32            [ 7] 1372 	cp	a, #0x32
+      0005D3 28 66            [12] 1373 	jr	Z, 00113$
+      0005D5 FE 36            [ 7] 1374 	cp	a, #0x36
+      0005D7 28 77            [12] 1375 	jr	Z, 00116$
+      0005D9 FE 37            [ 7] 1376 	cp	a, #0x37
+      0005DB 28 0A            [12] 1377 	jr	Z, 00101$
+      0005DD FE 38            [ 7] 1378 	cp	a, #0x38
+      0005DF 28 68            [12] 1379 	jr	Z, 00115$
+      0005E1 D6 39            [ 7] 1380 	sub	a, #0x39
+      0005E3 28 5D            [12] 1381 	jr	Z, 00114$
+      0005E5 18 6E            [12] 1382 	jr	00117$
+                                   1383 ;.\main.c:599: case 0x37: key = 0; break;
+      0005E7                       1384 00101$:
+      0005E7 21r0Cr00         [10] 1385 	ld	hl, #_key
+      0005EA 36 00            [10] 1386 	ld	(hl), #0x00
+      0005EC 18 67            [12] 1387 	jr	00117$
+                                   1388 ;.\main.c:600: case 0x21: key = 1; break;
+      0005EE                       1389 00102$:
+      0005EE 21r0Cr00         [10] 1390 	ld	hl, #_key
+      0005F1 36 01            [10] 1391 	ld	(hl), #0x01
+      0005F3 18 60            [12] 1392 	jr	00117$
+                                   1393 ;.\main.c:601: case 0x22: key = 2; break;
+      0005F5                       1394 00103$:
+      0005F5 21r0Cr00         [10] 1395 	ld	hl, #_key
+      0005F8 36 02            [10] 1396 	ld	(hl), #0x02
+      0005FA 18 59            [12] 1397 	jr	00117$
+                                   1398 ;.\main.c:602: case 0x23: key = 3; break;
+      0005FC                       1399 00104$:
+      0005FC 21r0Cr00         [10] 1400 	ld	hl, #_key
+      0005FF 36 03            [10] 1401 	ld	(hl), #0x03
+      000601 18 52            [12] 1402 	jr	00117$
+                                   1403 ;.\main.c:603: case 0x28: key = 4; break;
+      000603                       1404 00105$:
+      000603 21r0Cr00         [10] 1405 	ld	hl, #_key
+      000606 36 04            [10] 1406 	ld	(hl), #0x04
+      000608 18 4B            [12] 1407 	jr	00117$
+                                   1408 ;.\main.c:604: case 0x29: key = 5; break;
+      00060A                       1409 00106$:
+      00060A 21r0Cr00         [10] 1410 	ld	hl, #_key
+      00060D 36 05            [10] 1411 	ld	(hl), #0x05
+      00060F 18 44            [12] 1412 	jr	00117$
+                                   1413 ;.\main.c:605: case 0x2A: key = 6; break;
+      000611                       1414 00107$:
+      000611 21r0Cr00         [10] 1415 	ld	hl, #_key
+      000614 36 06            [10] 1416 	ld	(hl), #0x06
+      000616 18 3D            [12] 1417 	jr	00117$
+                                   1418 ;.\main.c:606: case 0x2F: key = 7; break;
+      000618                       1419 00108$:
+      000618 21r0Cr00         [10] 1420 	ld	hl, #_key
+      00061B 36 07            [10] 1421 	ld	(hl), #0x07
+      00061D 18 36            [12] 1422 	jr	00117$
+                                   1423 ;.\main.c:607: case 0x30: key = 8; break;
+      00061F                       1424 00109$:
+      00061F 21r0Cr00         [10] 1425 	ld	hl, #_key
+      000622 36 08            [10] 1426 	ld	(hl), #0x08
+      000624 18 2F            [12] 1427 	jr	00117$
+                                   1428 ;.\main.c:608: case 0x31: key = 9; break;
+      000626                       1429 00110$:
+      000626 21r0Cr00         [10] 1430 	ld	hl, #_key
+      000629 36 09            [10] 1431 	ld	(hl), #0x09
+      00062B 18 28            [12] 1432 	jr	00117$
+                                   1433 ;.\main.c:609: case 0x24: key = 0xa; break;
+      00062D                       1434 00111$:
+      00062D 21r0Cr00         [10] 1435 	ld	hl, #_key
+      000630 36 0A            [10] 1436 	ld	(hl), #0x0a
+      000632 18 21            [12] 1437 	jr	00117$
+                                   1438 ;.\main.c:610: case 0x2B: key = 0xb; break;
+      000634                       1439 00112$:
+      000634 21r0Cr00         [10] 1440 	ld	hl, #_key
+      000637 36 0B            [10] 1441 	ld	(hl), #0x0b
+      000639 18 1A            [12] 1442 	jr	00117$
+                                   1443 ;.\main.c:611: case 0x32: key = 0xc; break;
+      00063B                       1444 00113$:
+      00063B 21r0Cr00         [10] 1445 	ld	hl, #_key
+      00063E 36 0C            [10] 1446 	ld	(hl), #0x0c
+      000640 18 13            [12] 1447 	jr	00117$
+                                   1448 ;.\main.c:612: case 0x39: key = 0xd; break;
+      000642                       1449 00114$:
+      000642 21r0Cr00         [10] 1450 	ld	hl, #_key
+      000645 36 0D            [10] 1451 	ld	(hl), #0x0d
+      000647 18 0C            [12] 1452 	jr	00117$
+                                   1453 ;.\main.c:613: case 0x38: key = 0xe; break;
+      000649                       1454 00115$:
+      000649 21r0Cr00         [10] 1455 	ld	hl, #_key
+      00064C 36 0E            [10] 1456 	ld	(hl), #0x0e
+      00064E 18 05            [12] 1457 	jr	00117$
+                                   1458 ;.\main.c:614: case 0x36: key = 0xf; break;
+      000650                       1459 00116$:
+      000650 21r0Cr00         [10] 1460 	ld	hl, #_key
+      000653 36 0F            [10] 1461 	ld	(hl), #0x0f
+                                   1462 ;.\main.c:615: }
+      000655                       1463 00117$:
+                                   1464 ;.\main.c:616: return key;
+      000655 3Ar0Cr00         [13] 1465 	ld	a, (_key+0)
+                                   1466 ;.\main.c:617: }
+      000658 C9               [10] 1467 	ret
+                                   1468 ;.\main.c:619: char scan()
+                                   1469 ;	---------------------------------
+                                   1470 ; Function scan
+                                   1471 ; ---------------------------------
+      000659                       1472 _scan::
+      000659 DD E5            [15] 1473 	push	ix
+      00065B DD 21 00 00      [14] 1474 	ld	ix,#0
+      00065F DD 39            [15] 1475 	add	ix,sp
+      000661 21 FA FF         [10] 1476 	ld	hl, #-6
+      000664 39               [11] 1477 	add	hl, sp
+      000665 F9               [ 6] 1478 	ld	sp, hl
+                                   1479 ;.\main.c:621: char keypad_row_value = 1;
+      000666 DD 36 FC 01      [19] 1480 	ld	-4 (ix), #0x01
+                                   1481 ;.\main.c:622: key = 0;
+      00066A 21r0Cr00         [10] 1482 	ld	hl, #_key
+      00066D 36 00            [10] 1483 	ld	(hl), #0x00
+                                   1484 ;.\main.c:623: char key_code = 0x21;
+      00066F DD 36 FF 21      [19] 1485 	ld	-1 (ix), #0x21
+                                   1486 ;.\main.c:625: for (char i = 0; i < 6; i++)
+      000673 DD 36 FD 00      [19] 1487 	ld	-3 (ix), #0x00
+      000677                       1488 00112$:
+      000677 DD 7E FD         [19] 1489 	ld	a, -3 (ix)
+      00067A D6 06            [ 7] 1490 	sub	a, #0x06
+      00067C 30 62            [12] 1491 	jr	NC, 00107$
+                                   1492 ;.\main.c:627: portE = keypad_row_value;
+      00067E DD 7E FC         [19] 1493 	ld	a, -4 (ix)
+      000681 D3 0D            [11] 1494 	out	(_portE), a
+                                   1495 ;.\main.c:629: portF = buffer[i];
+      000683 3Er00            [ 7] 1496 	ld	a, #<(_buffer)
+      000685 DD 86 FD         [19] 1497 	add	a, -3 (ix)
+      000688 DD 77 FA         [19] 1498 	ld	-6 (ix), a
+      00068B 3Es00            [ 7] 1499 	ld	a, #>(_buffer)
+      00068D CE 00            [ 7] 1500 	adc	a, #0x00
+      00068F DD 77 FB         [19] 1501 	ld	-5 (ix), a
+      000692 E1               [10] 1502 	pop	hl
+      000693 E5               [11] 1503 	push	hl
+      000694 7E               [ 7] 1504 	ld	a, (hl)
+      000695 D3 11            [11] 1505 	out	(_portF), a
+                                   1506 ;.\main.c:630: delay(2);
+      000697 21 02 00         [10] 1507 	ld	hl, #0x0002
+      00069A CDrF6r00         [17] 1508 	call	_delay
+                                   1509 ;.\main.c:631: portF = 0xFF;
+      00069D 3E FF            [ 7] 1510 	ld	a, #0xff
+      00069F D3 11            [11] 1511 	out	(_portF), a
+                                   1512 ;.\main.c:633: delay(1);
+      0006A1 21 01 00         [10] 1513 	ld	hl, #0x0001
+      0006A4 CDrF6r00         [17] 1514 	call	_delay
+                                   1515 ;.\main.c:635: if (i < 4)
+      0006A7 DD 7E FD         [19] 1516 	ld	a, -3 (ix)
+      0006AA D6 04            [ 7] 1517 	sub	a, #0x04
+      0006AC 30 26            [12] 1518 	jr	NC, 00106$
+                                   1519 ;.\main.c:637: uint8_t keypad_col_value = portA;
+      0006AE DB 09            [11] 1520 	in	a, (_portA)
+      0006B0 DD 77 FE         [19] 1521 	ld	-2 (ix), a
+                                   1522 ;.\main.c:639: for (char i = 0; i < 7; i++)
+      0006B3 0E 00            [ 7] 1523 	ld	c, #0x00
+      0006B5                       1524 00109$:
+      0006B5 79               [ 4] 1525 	ld	a, c
+      0006B6 D6 07            [ 7] 1526 	sub	a, #0x07
+      0006B8 30 1A            [12] 1527 	jr	NC, 00122$
+                                   1528 ;.\main.c:641: if ((keypad_col_value & 1) == 1)
+      0006BA DD 7E FE         [19] 1529 	ld	a, -2 (ix)
+      0006BD E6 01            [ 7] 1530 	and	a, #0x01
+      0006BF 3D               [ 4] 1531 	dec	a
+      0006C0 20 08            [12] 1532 	jr	NZ, 00102$
+                                   1533 ;.\main.c:643: key = key_code;
+      0006C2 DD 7E FF         [19] 1534 	ld	a, -1 (ix)
+      0006C5 32r0Cr00         [13] 1535 	ld	(_key+0), a
+      0006C8 18 03            [12] 1536 	jr	00103$
+      0006CA                       1537 00102$:
+                                   1538 ;.\main.c:646: else key_code++;
+      0006CA DD 34 FF         [23] 1539 	inc	-1 (ix)
+      0006CD                       1540 00103$:
+                                   1541 ;.\main.c:647: keypad_col_value >>= 1;
+      0006CD DD CB FE 3E      [23] 1542 	srl	-2 (ix)
+                                   1543 ;.\main.c:639: for (char i = 0; i < 7; i++)
+      0006D1 0C               [ 4] 1544 	inc	c
+      0006D2 18 E1            [12] 1545 	jr	00109$
+      0006D4                       1546 00122$:
+      0006D4                       1547 00106$:
+                                   1548 ;.\main.c:650: keypad_row_value <<= 1;
+      0006D4 DD 7E FC         [19] 1549 	ld	a, -4 (ix)
+      0006D7 87               [ 4] 1550 	add	a, a
+      0006D8 DD 77 FC         [19] 1551 	ld	-4 (ix), a
+                                   1552 ;.\main.c:625: for (char i = 0; i < 6; i++)
+      0006DB DD 34 FD         [23] 1553 	inc	-3 (ix)
+      0006DE 18 97            [12] 1554 	jr	00112$
+      0006E0                       1555 00107$:
+                                   1556 ;.\main.c:654: return key;
+      0006E0 3Ar0Cr00         [13] 1557 	ld	a, (_key+0)
+                                   1558 ;.\main.c:656: }
+      0006E3 DD F9            [10] 1559 	ld	sp, ix
+      0006E5 DD E1            [14] 1560 	pop	ix
+      0006E7 C9               [10] 1561 	ret
+                                   1562 ;.\main.c:658: void key_exe()
+                                   1563 ;	---------------------------------
+                                   1564 ; Function key_exe
+                                   1565 ; ---------------------------------
+      0006E8                       1566 _key_exe::
+                                   1567 ;.\main.c:660: switch (key)
+      0006E8 3Ar0Cr00         [13] 1568 	ld	a, (_key+0)
+      0006EB D6 25            [ 7] 1569 	sub	a, #0x25
+      0006ED CAr24r03         [10] 1570 	jp	Z,_key_address
+      0006F0 3Ar0Cr00         [13] 1571 	ld	a, (_key+0)
+      0006F3 D6 26            [ 7] 1572 	sub	a, #0x26
+      0006F5 CAr34r03         [10] 1573 	jp	Z,_key_data
+      0006F8 3Ar0Cr00         [13] 1574 	ld	a, (_key+0)
+      0006FB D6 27            [ 7] 1575 	sub	a, #0x27
+      0006FD CArE6r03         [10] 1576 	jp	Z,_key_reg
+      000700 3Ar0Cr00         [13] 1577 	ld	a, (_key+0)
+      000703 D6 2C            [ 7] 1578 	sub	a, #0x2c
+      000705 CAr44r03         [10] 1579 	jp	Z,_key_plus
+      000708 3Ar0Cr00         [13] 1580 	ld	a, (_key+0)
+      00070B D6 2D            [ 7] 1581 	sub	a, #0x2d
+      00070D CAr5Ar03         [10] 1582 	jp	Z,_key_minus
+      000710 3Ar0Cr00         [13] 1583 	ld	a, (_key+0)
+      000713 D6 2E            [ 7] 1584 	sub	a, #0x2e
+      000715 CAr7Br03         [10] 1585 	jp	Z,_key_PC
+      000718 3Ar0Cr00         [13] 1586 	ld	a, (_key+0)
+      00071B D6 33            [ 7] 1587 	sub	a, #0x33
+      00071D CArC1r04         [10] 1588 	jp	Z,_key_step
+      000720 3Ar0Cr00         [13] 1589 	ld	a, (_key+0)
+      000723 D6 35            [ 7] 1590 	sub	a, #0x35
+      000725 CArF7r04         [10] 1591 	jp	Z,_key_go
+      000728 3Ar0Cr00         [13] 1592 	ld	a, (_key+0)
+      00072B D6 3A            [ 7] 1593 	sub	a, #0x3a
+      00072D CAr2Er05         [10] 1594 	jp	Z,_key_usart_receive_byte
+                                   1595 ;.\main.c:662: case 0x25: key_address(); break;
+                                   1596 ;.\main.c:663: case 0x26: key_data(); break;
+                                   1597 ;.\main.c:664: case 0x2C: key_plus(); break;
+                                   1598 ;.\main.c:665: case 0x2D: key_minus(); break;
+                                   1599 ;.\main.c:666: case 0x2E: key_PC(); break;
+                                   1600 ;.\main.c:667: case 0x27: key_reg(); break;
+                                   1601 ;.\main.c:668: case 0x35: key_go(); break;
+                                   1602 ;.\main.c:669: case 0x33: key_step(); break;
+                                   1603 ;.\main.c:671: case 0x3A: key_usart_receive_byte(); break;
+                                   1604 ;.\main.c:674: default:
+                                   1605 ;.\main.c:675: switch (state)
+      000730 3Ar0Er00         [13] 1606 	ld	a, (_state+0)
+      000733 3D               [ 4] 1607 	dec	a
+      000734 CAr84r03         [10] 1608 	jp	Z,_hex_address
+      000737 3Ar0Er00         [13] 1609 	ld	a, (_state+0)
+      00073A D6 02            [ 7] 1610 	sub	a, #0x02
+      00073C CArB0r03         [10] 1611 	jp	Z,_data_hex
+      00073F 3Ar0Er00         [13] 1612 	ld	a, (_state+0)
+      000742 D6 03            [ 7] 1613 	sub	a, #0x03
+      000744 CAr96r04         [10] 1614 	jp	Z,_reg_display
+                                   1615 ;.\main.c:677: case 1: hex_address(); break;
+                                   1616 ;.\main.c:678: case 2: data_hex(); break;
+                                   1617 ;.\main.c:679: case 3: reg_display(); break;
+                                   1618 ;.\main.c:684: }
+                                   1619 ;.\main.c:686: }
+      000747 C9               [10] 1620 	ret
+                                   1621 ;.\main.c:688: void scan1()
+                                   1622 ;	---------------------------------
+                                   1623 ; Function scan1
+                                   1624 ; ---------------------------------
+      000748                       1625 _scan1::
+                                   1626 ;.\main.c:690: while (scan() != 0)
+      000748                       1627 00101$:
+      000748 CDr59r06         [17] 1628 	call	_scan
+      00074B B7               [ 4] 1629 	or	a, a
+      00074C 20 FA            [12] 1630 	jr	NZ, 00101$
+                                   1631 ;.\main.c:692: delay(3);
+      00074E 21 03 00         [10] 1632 	ld	hl, #0x0003
+      000751 CDrF6r00         [17] 1633 	call	_delay
+                                   1634 ;.\main.c:694: while (scan() == 0)
+      000754                       1635 00104$:
+      000754 CDr59r06         [17] 1636 	call	_scan
+      000757 B7               [ 4] 1637 	or	a, a
+      000758 28 FA            [12] 1638 	jr	Z, 00104$
+                                   1639 ;.\main.c:696: delay(3);
+      00075A 21 03 00         [10] 1640 	ld	hl, #0x0003
+      00075D CDrF6r00         [17] 1641 	call	_delay
+                                   1642 ;.\main.c:698: key = scan();
+      000760 CDr59r06         [17] 1643 	call	_scan
+                                   1644 ;.\main.c:700: key = key_code(key);
+      000763 32r0Cr00         [13] 1645 	ld	(_key+0), a
+      000766 CDrA5r05         [17] 1646 	call	_key_code
+      000769 32r0Cr00         [13] 1647 	ld	(_key+0), a
+                                   1648 ;.\main.c:702: key_exe();
+                                   1649 ;.\main.c:704: }
+      00076C C3rE8r06         [10] 1650 	jp	_key_exe
+                                   1651 	.area _CODE
+                                   1652 	.area _INITIALIZER
+                                   1653 	.area _CABS (ABS)

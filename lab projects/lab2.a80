@@ -1,0 +1,13 @@
+; Z80 Microprocessor Kit sdcc version
+; Written by Youssef Ahmed Tawfik (C) 2024
+
+; project function is to make code by asymbly programming
+
+; get these values from map file 
+
+; user main application
+L1:
+	LD A,0x55
+    LD B,0x44
+    ADD A,B
+    HALT

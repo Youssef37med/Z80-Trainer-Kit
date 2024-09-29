@@ -1,0 +1,164 @@
+ASxxxx Linker V03.00/V05.40 + sdld,  page 1.
+Hexadecimal  [32-Bits]
+
+Area                                    Addr        Size        Decimal Bytes (Attributes)
+--------------------------------        ----        ----        ------- ----- ------------
+.  .ABS.                            00000000    00000000 =           0. bytes (ABS,CON)
+
+      Value  Global                              Global Defined In Module
+      -----  --------------------------------   ------------------------
+     00000000  .__.ABS.                           
+     00000000  l__CABS                         
+     00000000  l__DABS                         
+     00000000  l__GSFINAL                      
+     00000000  l__GSINIT                       
+     00000000  l__HEADER                       
+     00000000  l__HOME                         
+     00000000  l__INITIALIZED                  
+     00000000  l__INITIALIZER                  
+     00000000  s__CABS                         
+     00000000  s__DABS                         
+     00000000  s__HEADER                       
+     00000000  s__HEADER0                      
+     00000000  s__HEADER1                      
+     00000000  s__HEADER2                      
+     00000004  l__HEADER1                      
+     0000001B  l__HEADER2                      
+     00000026  l__DATA                         
+     00000038  l__HEADER0                      
+     00000090  s__CODE                         
+     0000076F  l__CODE                         
+     00008000  s__DATA                         
+     00008026  s__GSFINAL                      
+     00008026  s__GSINIT                       
+     00008026  s__HOME                         
+     00008026  s__INITIALIZED                  
+     00008026  s__INITIALIZER                  
+ASxxxx Linker V03.00/V05.40 + sdld,  page 2.
+Hexadecimal  [32-Bits]
+
+Area                                    Addr        Size        Decimal Bytes (Attributes)
+--------------------------------        ----        ----        ------- ----- ------------
+_CODE                               00000090    0000076F =        1903. bytes (REL,CON)
+
+      Value  Global                              Global Defined In Module
+      -----  --------------------------------   ------------------------
+     00000090  _main                              main
+     000000EB  _convert                           main
+     000000FB  _hex_chars                         main
+     00000126  _default_handler                   main
+     00000140  _nmi_handler                       main
+     00000186  _delay                             main
+     00000192  _delay_ms                          main
+     000001A7  _lcd_8bit_initialize               main
+     00000218  _lcd_8bit_send_command             main
+     0000021F  _lcd_8bit_send_char_data           main
+     00000226  _lcd_8bit_send_string              main
+     00000233  _lcd_8bit_set_cursor               main
+     00000261  _lcd_8bit_send_uint8_hex_data      main
+     000002AA  _p8255_initialize                  main
+     000002B7  _dot_address                       main
+     000002E3  _dot_data                          main
+     0000030F  _address_buffer_write              main
+     00000369  _data_buffer_write                 main
+     0000039A  _address_display                   main
+     000003A3  _data_display                      main
+     000003AE  _read_memory                       main
+     000003B4  _key_address                       main
+     000003C4  _key_data                          main
+     000003D4  _key_plus                          main
+     000003EA  _key_minus                         main
+     0000040B  _key_PC                            main
+     00000414  _hex_address                       main
+     00000440  _data_hex                          main
+     00000476  _key_reg                           main
+     0000049A  _reg_AF                            main
+     000004AE  _reg_BC                            main
+     000004C2  _reg_DE                            main
+     000004D6  _reg_HL                            main
+     000004EA  _reg_IX                            main
+     000004FE  _reg_IY                            main
+     00000512  _reg_SP                            main
+     00000526  _reg_display                       main
+     00000551  _key_step                          main
+     00000587  _key_go                            main
+     000005BE  _key_usart_receive_byte            main
+     00000635  _key_code                          main
+     000006E9  _scan                              main
+     00000778  _key_exe                           main
+     000007D8  _scan1                             main
+
+ASxxxx Linker V03.00/V05.40 + sdld,  page 3.
+Hexadecimal  [32-Bits]
+
+Area                                    Addr        Size        Decimal Bytes (Attributes)
+--------------------------------        ----        ----        ------- ----- ------------
+_DATA                               00008000    00000026 =          38. bytes (REL,CON)
+
+      Value  Global                              Global Defined In Module
+      -----  --------------------------------   ------------------------
+     00008000  _buffer                            main
+     00008006  _temp                              main
+     00008008  _temp16                            main
+     0000800A  _temp8                             main
+     0000800B  _count                             main
+     0000800C  _key                               main
+     0000800D  _data_in                           main
+     0000800E  _state                             main
+     0000800F  _hit                               main
+     00008010  _PC                                main
+     00008012  _save_PC                           main
+     00008014  _USER_AF                           main
+     00008016  _USER_BC                           main
+     00008018  _USER_DE                           main
+     0000801A  _USER_HL                           main
+     0000801C  _USER_IX                           main
+     0000801E  _USER_IY                           main
+     00008020  _USER_SP                           main
+     00008022  _SYS_SP                            main
+     00008024  _dptr                              main
+
+ASxxxx Linker V03.00/V05.40 + sdld,  page 4.
+Hexadecimal  [32-Bits]
+
+Area                                    Addr        Size        Decimal Bytes (Attributes)
+--------------------------------        ----        ----        ------- ----- ------------
+_HEADER0                            00000000    00000038 =          56. bytes (ABS,CON)
+
+      Value  Global                              Global Defined In Module
+      -----  --------------------------------   ------------------------
+ASxxxx Linker V03.00/V05.40 + sdld,  page 5.
+Hexadecimal  [32-Bits]
+
+Area                                    Addr        Size        Decimal Bytes (Attributes)
+--------------------------------        ----        ----        ------- ----- ------------
+_HEADER1                            00000000    00000004 =           4. bytes (ABS,CON)
+
+      Value  Global                              Global Defined In Module
+      -----  --------------------------------   ------------------------
+ASxxxx Linker V03.00/V05.40 + sdld,  page 6.
+Hexadecimal  [32-Bits]
+
+Area                                    Addr        Size        Decimal Bytes (Attributes)
+--------------------------------        ----        ----        ------- ----- ------------
+_HEADER2                            00000000    0000001B =          27. bytes (ABS,CON)
+
+      Value  Global                              Global Defined In Module
+      -----  --------------------------------   ------------------------
+     0000007B  _exit                              
+
+ASxxxx Linker V03.00/V05.40 + sdld,  page 7.
+
+Files Linked                              [ module(s) ]
+
+main.rel                                  [ main ]
+StartUpCode.rel                           [  ]
+
+ASxxxx Linker V03.00/V05.40 + sdld,  page 8.
+
+User Base Address Definitions
+
+_CODE = 0x0090
+_DATA = 0x8000
+
+
